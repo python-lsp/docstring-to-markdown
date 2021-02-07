@@ -243,9 +243,9 @@ class PythonPromptCodeBlockParser(BlockParser):
         return line.startswith('>>>') or line.startswith('...')
 
     def consume(self, line: str):
-        super().consume(self._stripPrompt(line))
+        super().consume(self._strip_prompt(line))
 
-    def _stripPrompt(self, line: str) -> str:
+    def _strip_prompt(self, line: str) -> str:
         start = 4 if line.startswith('>>> ') or line.startswith('... ') else 3
         return line[start:]
 
@@ -308,15 +308,15 @@ NBSP_INDENT = '    '
 
 def rst_to_markdown(text: str):
     """
-  Try to parse docstrs in following formats to markdown:
-   - https://www.python.org/dev/peps/pep-0287/
-   - https://www.python.org/dev/peps/pep-0257/
-   - https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_numpy.html
+    Try to parse docstrings in following formats to markdown:
+    - https://www.python.org/dev/peps/pep-0287/
+    - https://www.python.org/dev/peps/pep-0257/
+    - https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_numpy.html
 
-   It is intended to improve the UX while better the solutions at the backend
-   are being investigated rather than provide a fully-featured implementation.
+    It is intended to improve the UX while better the solutions at the backend
+    are being investigated rather than provide a fully-featured implementation.
 
-   Supported features:
+    Supported features:
     - code blocks:
       - PEP0257 (formatting of code with highlighting, formatting of output without highlighting)
       - after ::
@@ -326,8 +326,9 @@ def rst_to_markdown(text: str):
     - external links (inline only)
     - as subset of paragraph-level and inline directives (which must fit into a single line)
 
-  @param text - the input docstring
-  """
+    Arguments:
+        text - the input docstring
+    """
     language = 'python'
     markdown = ''
     active_parser: Union[IParser, None] = None
