@@ -70,7 +70,10 @@ df2
 
 RST_LINK_EXAMPLE = """To learn more about the frequency strings, please see `this link
 <https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases>`__."""
-RST_LINK_EXAMPLE_MARKDOWN = """To learn more about the frequency strings, please see [this link](https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases)."""
+RST_LINK_EXAMPLE_MARKDOWN = (
+    "To learn more about the frequency strings, please see"
+    "[this link](https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases)."
+)
 RST_REF_EXAMPLE = """See :ref:`here <timeseries.offset_aliases>` for a list of frequency aliases."""
 RST_REF_MARKDOWN = """See here: `timeseries.offset_aliases` for a list of frequency aliases."""
 
