@@ -72,7 +72,7 @@ df2
 RST_LINK_EXAMPLE = """To learn more about the frequency strings, please see `this link
 <https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases>`__."""
 RST_LINK_EXAMPLE_MARKDOWN = (
-    "To learn more about the frequency strings, please see"
+    "To learn more about the frequency strings, please see "
     "[this link](https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases)."
 )
 RST_REF_EXAMPLE = """See :ref:`here <timeseries.offset_aliases>` for a list of frequency aliases."""
@@ -225,6 +225,31 @@ data.frame()
 ```
 """
 
+NUMPY_NOTE = """
+operations and methods.
+
+.. note::
+   The `chararray` class exists for backwards compatibility with
+   Numarray, it is not recommended for new development.
+
+Some methods will only be available if the corresponding string method is
+"""
+
+NUMPY_NOTE_MARKDOWN = """
+operations and methods.
+
+
+---
+**Note**
+
+The `chararray` class exists for backwards compatibility with
+Numarray, it is not recommended for new development.
+
+---
+
+Some methods will only be available if the corresponding string method is
+"""
+
 RST_MATH_EXAMPLE = """
 In two dimensions, the DFT is defined as
 
@@ -341,5 +366,7 @@ def test_rst_to_markdown_prompt_continuation():
     assert (
         rst_to_markdown('Discrete Fourier Transform (:mod:`numpy.fft`)') == 'Discrete Fourier Transform (`numpy.fft`)'
     )
+
+    assert rst_to_markdown(NUMPY_NOTE) == NUMPY_NOTE_MARKDOWN
   
 

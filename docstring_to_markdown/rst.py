@@ -281,6 +281,17 @@ class MathBlockParser(IndentedBlockParser):
         return IBlockBeginning(remainder='')
 
 
+class NoteBlockParser(IndentedBlockParser):
+    enclosure = '\n---'
+
+    def can_parse(self, line: str):
+        return line.strip() == '.. note::'
+
+    def initiate_parsing(self, line: str, current_language: str):
+        self._start_block('\n**Note**\n')
+        return IBlockBeginning(remainder='')
+
+
 class ExplicitCodeBlockParser(IndentedBlockParser):
     def can_parse(self, line: str) -> bool:
         return re.match(CODE_BLOCK_PATTERN, line) is not None
@@ -293,6 +304,7 @@ class ExplicitCodeBlockParser(IndentedBlockParser):
 
 BLOCK_PARSERS = [
     PythonPromptCodeBlockParser(),
+    NoteBlockParser(),
     MathBlockParser(),
     ExplicitCodeBlockParser(),
     DoubleColonBlockParser()
