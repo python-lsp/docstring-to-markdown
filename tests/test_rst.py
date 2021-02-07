@@ -1,4 +1,5 @@
-from pyls.rst import looks_like_rst, rst_to_markdown
+from docstring_to_markdown.rst import looks_like_rst, rst_to_markdown
+
 
 SEE_ALSO = """
 See Also
