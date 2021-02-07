@@ -144,8 +144,8 @@ class BlockParser(IParser):
     @abstractmethod
     def can_parse(self, line: str) -> bool:
         """
-    All children should call _start_block in initiate_parsing() implementation.
-    """
+        All children should call _start_block in initiate_parsing() implementation.
+        """
         pass
 
     @abstractmethod
@@ -312,6 +312,7 @@ def rst_to_markdown(text: str):
     - https://www.python.org/dev/peps/pep-0287/
     - https://www.python.org/dev/peps/pep-0257/
     - https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_numpy.html
+    - https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#literal-blocks
 
     It is intended to improve the UX while better the solutions at the backend
     are being investigated rather than provide a fully-featured implementation.
