@@ -1,6 +1,8 @@
 # docstring-to-markdown
 
 [![tests](https://github.com/krassowski/jupyterlab-lsp/workflows/tests/badge.svg)](https://github.com/krassowski/docstring-to-markdown/actions?query=workflow%3A%22tests%22)
+![CodeQL](https://github.com/krassowski/data-vault/workflows/CodeQL/badge.svg)
+[![pypi-version](https://img.shields.io/pypi/v/docstring-to-markdown.svg)](https://python.org/pypi/docstring-to-markdown)
 
 On the fly conversion of Python docstrings to markdown
 
@@ -22,14 +24,16 @@ Convert reStructuredText:
 ```python
 >>> import docstring_to_markdown
 >>> docstring_to_markdown.convert(':math:`\\sum`')
-$\\sum$
+'$\\sum$'
 ```
 
 When given the format cannot be recognised an exception will be raised:
 
 ```python
 >>> docstring_to_markdown.convert('\\sum')
-UnknownFormatError()
+Traceback (most recent call last):
+    raise UnknownFormatError()
+docstring_to_markdown.UnknownFormatError
 ```
 
 ### Development
