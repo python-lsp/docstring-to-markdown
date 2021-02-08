@@ -65,6 +65,13 @@ RST_DIRECTIVES: List[Directive] = [
     )
 ]
 
+ESCAPING_RULES: List[Directive] = [
+    Directive(
+        pattern=r'__(?P<text>\S+)__',
+        replacement=r'\_\_\g<text>\_\_'
+    )
+]
+
 
 def _find_directive_pattern(name: str):
     return [
@@ -306,6 +313,11 @@ RST_SECTIONS = {
     for section in _RST_SECTIONS
 }
 
+DIRECTIVES = [
+    *RST_DIRECTIVES,
+    *ESCAPING_RULES
+]
+
 
 def rst_to_markdown(text: str):
     """
@@ -342,7 +354,7 @@ def rst_to_markdown(text: str):
         nonlocal lines_buffer
         lines = '\n'.join(lines_buffer)
         # rst markup handling
-        for directive in RST_DIRECTIVES:
+        for directive in DIRECTIVES:
             lines = re.sub(directive.pattern, directive.replacement, lines)
 
         for (section, header) in RST_SECTIONS.items():
@@ -353,7 +365,7 @@ def rst_to_markdown(text: str):
 
     for line in text.split('\n'):
         if is_first_line:
-            signature_match = re.match(r'^(?P<name>\w+)\((?P<params>.*)\)$', line)
+            signature_match = re.match(r'^(?P<name>\S+)\((?P<params>.*)\)$', line)
             if signature_match and signature_match.group('name').isidentifier():
                 markdown += '```python\n' + line + '\n```\n'
                 continue
@@ -384,9 +396,6 @@ def rst_to_markdown(text: str):
 
             # ok, we are not in any code block (it may start with the next line, but this line is clear - or empty)
 
-            if trimmed_line.rstrip() in RST_SECTIONS:
-                most_recent_section = trimmed_line.rstrip()
-
             # lists handling: items detection
             match = re.match(r'^(?P<argument>[^: ]+) : (?P<type>.+)$', trimmed_line)
             if match:
@@ -395,6 +404,9 @@ def rst_to_markdown(text: str):
                 kwargs_or_args_match = re.match(r'^(?P<other_args>\*\*kwargs|\*args)$', trimmed_line)
                 if kwargs_or_args_match:
                     line = '- `' + kwargs_or_args_match.group('other_args') + '`'
+            else:
+                if trimmed_line.rstrip() in RST_SECTIONS:
+                    most_recent_section = trimmed_line.rstrip()
 
             # change highlight language if requested
             # this should not conflict with the parsers starting above

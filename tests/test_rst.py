@@ -294,14 +294,14 @@ KWARGS_PARAMETERS_MARKDOWN = """
 """
 
 INITIAL_SIGNATURE = """\
-absolute(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature, extobj])
+absolute1(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature, extobj])
 
 Calculate the absolute value element-wise.
 """
 
 INITIAL_SIGNATURE_MARKDOWN = """\
 ```python
-absolute(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature, extobj])
+absolute1(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature, extobj])
 ```
 
 Calculate the absolute value element-wise.
@@ -461,7 +461,13 @@ RST_CASES = {
     'converts warnings': {
         'rst': WARNING_BLOCK,
         'md': WARNING_BLOCK_MARKDOWN
-    }
+    },
+    'escapes double dunders': {
+        # this is guaranteed to not be any rst markup as per
+        # https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#inline-markup-recognition-rules
+        'rst': '__init__',
+        'md': r'\_\_init\_\_'
+    },
 }
 
 
