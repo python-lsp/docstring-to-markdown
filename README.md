@@ -1,5 +1,7 @@
 # docstring-to-markdown
 
+[![tests](https://github.com/krassowski/jupyterlab-lsp/workflows/tests/badge.svg)](https://github.com/krassowski/docstring-to-markdown/actions?query=workflow%3A%22tests%22)
+
 On the fly conversion of Python docstrings to markdown
 
 - Python 3.6+
