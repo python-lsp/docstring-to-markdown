@@ -27,6 +27,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip wheel
         python -m pip install -r requirements-dev.txt
+    - name: Temporary installation
+      run: python -m pip install -e .
+    - name: Test with pytest
+      run: |
+        pytest
     - name: Build package
       run: |
         python setup.py sdist bdist_wheel
@@ -34,6 +39,3 @@ jobs:
       run: python -m pip install --find-links=dist --no-index --ignore-installed docstring_to_markdown
     - name: Pip check
       run: python -m pip check
-    - name: Test with pytest
-      run: |
-        pytest
