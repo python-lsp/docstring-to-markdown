@@ -76,7 +76,7 @@ def _find_directive_pattern(name: str):
 HIGHLIGHT_PATTERN = _find_directive_pattern('highlight')
 CODE_BLOCK_PATTERN = _find_directive_pattern('code-block')
 
-_RST_SECTIONS = [
+_RST_SECTIONS = {
     'Parameters',
     'Returns',
     'See Also',
@@ -84,7 +84,7 @@ _RST_SECTIONS = [
     'Attributes',
     'Notes',
     'References'
-]
+}
 
 
 def looks_like_rst(value: str) -> bool:
@@ -128,7 +128,8 @@ class IParser(ABC):
     def finish_consumption(self, final: bool) -> str:
         pass
 
-    follower: Union['IParser', None]
+    def get_follower(self, line: str) -> Union['IParser', None]:
+        return None
 
 
 class BlockParser(IParser):
@@ -249,7 +250,9 @@ class PythonPromptCodeBlockParser(BlockParser):
         start = 4 if line.startswith('>>> ') or line.startswith('... ') else 3
         return line[start:]
 
-    follower = PythonOutputBlockParser()
+    def get_follower(self, line: str) -> Union['IParser', None]:
+        if line:
+            return PythonOutputBlockParser()
 
 
 class DoubleColonBlockParser(IndentedBlockParser):
@@ -267,7 +270,7 @@ class DoubleColonBlockParser(IndentedBlockParser):
             line = re.sub(r'::$', '', line)
 
         self._start_block(language)
-        return IBlockBeginning(remainder=line + '\n\n')
+        return IBlockBeginning(remainder=line.rstrip() + '\n\n')
 
 
 class MathBlockParser(IndentedBlockParser):
@@ -315,8 +318,6 @@ RST_SECTIONS = {
     for section in _RST_SECTIONS
 }
 
-NBSP_INDENT = '    '
-
 
 def rst_to_markdown(text: str):
     """
@@ -337,7 +338,7 @@ def rst_to_markdown(text: str):
       - explicit code blocks
     - NumPy-like list items
     - external links (inline only)
-    - as subset of paragraph-level and inline directives (which must fit into a single line)
+    - as subset of paragraph-level and inline directives
 
     Arguments:
         text - the input docstring
@@ -346,6 +347,8 @@ def rst_to_markdown(text: str):
     markdown = ''
     active_parser: Union[IParser, None] = None
     lines_buffer: List[str] = []
+    most_recent_section: Union[str, None] = None
+    is_first_line = True
 
     def flush_buffer():
         nonlocal lines_buffer
@@ -357,11 +360,16 @@ def rst_to_markdown(text: str):
         for (section, header) in RST_SECTIONS.items():
             lines = lines.replace(header, '\n#### ' + section + '\n')
 
-        lines = lines.replace(NBSP_INDENT, '    ')
         lines_buffer = []
         return lines
 
     for line in text.split('\n'):
+        if is_first_line:
+            signature_match = re.match(r'^(?P<name>\w+)\((?P<params>.*)\)$', line)
+            if signature_match and signature_match.group('name').isidentifier():
+                markdown += '```python\n' + line + '\n```\n'
+                continue
+
         trimmed_line = line.lstrip()
 
         if active_parser:
@@ -370,8 +378,9 @@ def rst_to_markdown(text: str):
             else:
                 markdown += flush_buffer()
                 markdown += active_parser.finish_consumption(False)
-                if active_parser.follower:
-                    active_parser = active_parser.follower
+                follower = active_parser.get_follower(line)
+                if follower:
+                    active_parser = follower
                     active_parser.initiate_parsing(line, language)
                 else:
                     active_parser = None
@@ -387,10 +396,17 @@ def rst_to_markdown(text: str):
 
             # ok, we are not in any code block (it may start with the next line, but this line is clear - or empty)
 
-            # lists handling:  items detection
+            if trimmed_line.rstrip() in RST_SECTIONS:
+                most_recent_section = trimmed_line.rstrip()
+
+            # lists handling: items detection
             match = re.match(r'^(?P<argument>[^: ]+) : (?P<type>.+)$', trimmed_line)
             if match:
                 line = '- `' + match.group('argument') + '`: ' + match.group('type') + ''
+            elif most_recent_section == 'Parameters':
+                kwargs_or_args_match = re.match(r'^(?P<other_args>\*\*kwargs|\*args)$', trimmed_line)
+                if kwargs_or_args_match:
+                    line = '- `' + kwargs_or_args_match.group('other_args') + '`'
 
             # change highlight language if requested
             # this should not conflict with the parsers starting above

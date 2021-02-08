@@ -1,3 +1,5 @@
+import pytest
+
 from docstring_to_markdown.rst import looks_like_rst, rst_to_markdown
 
 
@@ -121,7 +123,7 @@ except that the original function is not temporarily bound to the name func.
 """
 
 RST_COLON_CODE_BLOCK_MARKDOWN = """
-For example, the following code 
+For example, the following code
 
 ```python
 @f1(arg)
@@ -129,7 +131,7 @@ For example, the following code
 def func(): pass
 ```
 
-is roughly equivalent to (*See also* exact_conversion) 
+is roughly equivalent to (*See also* exact_conversion)
 
 ```python
 def func(): pass
@@ -144,7 +146,7 @@ NUMPY_EXAMPLE = """
 The docstring examples assume that `numpy` has been imported as `np`::
 
   >>> import numpy as np
-  
+
 Code snippets are indicated by three greater-than signs::
 
   >>> x = 42
@@ -218,7 +220,7 @@ Code block ::
 
 RST_HIGHLIGHTED_BLOCK_MARKDOWN = """
 
-Code block 
+Code block
 
 ```R
 data.frame()
@@ -257,7 +259,7 @@ In two dimensions, the DFT is defined as
    A_{kl} =  \\\\sum_{m=0}^{M-1} \\\\sum_{n=0}^{N-1}
    a_{mn}\\\\exp\\\\left\\\\{-2\\\\pi i \\\\left({mk\\\\over M}+{nl\\\\over N}\\\\right)\\\\right\\\\}
    \\\\qquad k = 0, \\\\ldots, M-1\\\\quad l = 0, \\\\ldots, N-1,
-   
+
 which extends in the obvious way to higher dimensions, and the inverses
 """
 
@@ -273,22 +275,80 @@ $$
 which extends in the obvious way to higher dimensions, and the inverses
 """
 
+KWARGS_PARAMETERS = """
+Parameters
+----------
+x : array_like
+    Input array.
+**kwargs
+    For other keyword-only arguments, see the ufunc docs.
+"""
 
-def test_looks_like_rst_recognises_rst():
-  
-    assert looks_like_rst(PEP_287_CODE_BLOCK)
-    assert looks_like_rst('the following code ::\n\n\tcode')
-    assert looks_like_rst('the following code::\n\n\tcode')
-    assert looks_like_rst('See Also\n--------\n')
+KWARGS_PARAMETERS_MARKDOWN = """
+#### Parameters
+
+- `x`: array_like
+    Input array.
+- `**kwargs`
+    For other keyword-only arguments, see the ufunc docs.
+"""
+
+INITIAL_SIGNATURE = """\
+absolute(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature, extobj])
+
+Calculate the absolute value element-wise.
+"""
+
+INITIAL_SIGNATURE_MARKDOWN = """\
+```python
+absolute(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature, extobj])
+```
+
+Calculate the absolute value element-wise.
+"""
 
 
-def test_looks_like_rst_ignores_plain_text():
+CODE_BLOCK_BUT_NOT_OUTPUT = """
+Plot the function over ``[-10, 10]``:
 
-    assert not looks_like_rst('this is plain text')
-    assert not looks_like_rst('this might be **markdown**')
-    assert not looks_like_rst('::::::\n\n\tcode')
-    assert not looks_like_rst('::')
-    assert not looks_like_rst('See Also: Interesting Topic')
+>>> import matplotlib.pyplot as plt
+
+>>> x = np.linspace(start=-10, stop=10, num=101)
+>>> plt.plot(x, np.absolute(x))
+>>> plt.show()
+
+Plot the function over the complex plane:
+
+>>> xx = x + 1j * x[:, np.newaxis]
+>>> plt.imshow(np.abs(xx), extent=[-10, 10, -10, 10], cmap='gray')
+>>> plt.show()
+"""
+
+
+CODE_BLOCK_BUT_NOT_OUTPUT_MD = """
+Plot the function over ``[-10, 10]``:
+
+```python
+import matplotlib.pyplot as plt
+```
+
+
+```python
+x = np.linspace(start=-10, stop=10, num=101)
+plt.plot(x, np.absolute(x))
+plt.show()
+```
+
+
+Plot the function over the complex plane:
+
+```python
+xx = x + 1j * x[:, np.newaxis]
+plt.imshow(np.abs(xx), extent=[-10, 10, -10, 10], cmap='gray')
+plt.show()
+```
+
+"""
 
 
 INTEGRATION = """
@@ -307,6 +367,89 @@ To learn more about the frequency strings, please see `this link
 """
 
 
+RST_CASES = {
+    'handles prompt continuation and multi-line output': {
+        'rst': CODE_MULTI_LINE_CODE_OUTPUT,
+        'md': CODE_MULTI_LINE_CODE_OUTPUT_MARKDOWN
+    },
+    'converts links': {
+        'rst': RST_LINK_EXAMPLE,
+        'md': RST_LINK_EXAMPLE_MARKDOWN
+    },
+    'changes highlight': {
+        'rst': RST_HIGHLIGHTED_BLOCK,
+        'md': RST_HIGHLIGHTED_BLOCK_MARKDOWN
+    },
+    'converts production list': {
+        'rst': RST_PRODUCTION_LIST_EXAMPLE,
+        'md': RST_PRODUCTION_LIST_EXAMPLE_MARKDOWN
+    },
+    'converts inline math': {
+        'rst': NUMPY_MATH_EXAMPLE,
+        'md': NUMPY_MATH_EXAMPLE_MARKDOWN
+    },
+    'converts math blocks': {
+        'rst': RST_MATH_EXAMPLE,
+        'md': RST_MATH_EXAMPLE_MARKDOWN
+    },
+    'converts references': {
+        'rst': RST_REF_EXAMPLE,
+        'md': RST_REF_MARKDOWN
+    },
+    'converts double colon-initiated code block and the preceding lines': {
+        'rst': RST_COLON_CODE_BLOCK,
+        'md': RST_COLON_CODE_BLOCK_MARKDOWN
+    },
+    'converts double colon-initiated code block with different indent and Python prompt': {
+        'rst': NUMPY_EXAMPLE,
+        'md': NUMPY_EXAMPLE_MARKDOWN
+    },
+    'converts version changed': {
+        'rst': '.. versionchanged:: 0.23.0',
+        'md': '*Changed in 0.23.0*'
+    },
+    'converts "see also" section': {
+        'rst': SEE_ALSO,
+        'md': SEE_ALSO_MARKDOWN
+    },
+    'converts module': {
+        'rst': 'Discrete Fourier Transform (:mod:`numpy.fft`)',
+        'md': 'Discrete Fourier Transform (`numpy.fft`)'
+    },
+    'converts note': {
+        'rst': NUMPY_NOTE,
+        'md': NUMPY_NOTE_MARKDOWN
+    },
+    'includes kwargs in parameters list': {
+        'rst': KWARGS_PARAMETERS,
+        'md': KWARGS_PARAMETERS_MARKDOWN
+    },
+    'converts signature in the first line': {
+        'rst': INITIAL_SIGNATURE,
+        'md': INITIAL_SIGNATURE_MARKDOWN
+    },
+    'separates following paragraph after a code blocks without output': {
+        'rst': CODE_BLOCK_BUT_NOT_OUTPUT,
+        'md': CODE_BLOCK_BUT_NOT_OUTPUT_MD
+    }
+}
+
+
+def test_looks_like_rst_recognises_rst():
+    assert looks_like_rst(PEP_287_CODE_BLOCK)
+    assert looks_like_rst('the following code ::\n\n\tcode')
+    assert looks_like_rst('the following code::\n\n\tcode')
+    assert looks_like_rst('See Also\n--------\n')
+
+
+def test_looks_like_rst_ignores_plain_text():
+    assert not looks_like_rst('this is plain text')
+    assert not looks_like_rst('this might be **markdown**')
+    assert not looks_like_rst('::::::\n\n\tcode')
+    assert not looks_like_rst('::')
+    assert not looks_like_rst('See Also: Interesting Topic')
+
+
 def test_rst_to_markdown_pep287():
     # Converts PEP 287 examples correctly
     # https://www.python.org/dev/peps/pep-0287/
@@ -314,59 +457,17 @@ def test_rst_to_markdown_pep287():
     assert converted == PEP_287_CODE_BLOCK_MARKDOWN
 
 
-def test_rst_to_markdown_prompt_continuation():
-
-    # handles prompt continuation and multi-line output
-    converted = rst_to_markdown(CODE_MULTI_LINE_CODE_OUTPUT)
-    assert converted == CODE_MULTI_LINE_CODE_OUTPUT_MARKDOWN
-
-    # converts links
-    converted = rst_to_markdown(RST_LINK_EXAMPLE)
-    assert converted == RST_LINK_EXAMPLE_MARKDOWN
-
+def test_integration():
     converted = rst_to_markdown(INTEGRATION)
     assert RST_LINK_EXAMPLE_MARKDOWN in converted
 
-    # changes highlight
-    converted = rst_to_markdown(RST_HIGHLIGHTED_BLOCK)
-    assert converted == RST_HIGHLIGHTED_BLOCK_MARKDOWN
-  
-    # converts production list
-    converted = rst_to_markdown(RST_PRODUCTION_LIST_EXAMPLE)
-    assert converted == RST_PRODUCTION_LIST_EXAMPLE_MARKDOWN
 
-    # converts inline math
-    converted = rst_to_markdown(NUMPY_MATH_EXAMPLE)
-    assert converted == NUMPY_MATH_EXAMPLE_MARKDOWN
-
-    # converts math blocks
-    converted = rst_to_markdown(RST_MATH_EXAMPLE)
-    assert converted == RST_MATH_EXAMPLE_MARKDOWN
-
-    # converts references
-    converted = rst_to_markdown(RST_REF_EXAMPLE)
-    assert converted == RST_REF_MARKDOWN
-
-    # converts double colon-initiated code block and the preceding lines
-    converted = rst_to_markdown(RST_COLON_CODE_BLOCK)
-    assert converted == RST_COLON_CODE_BLOCK_MARKDOWN
-
-    # converts double colon-initiated code block with different indent and Python prompt
-    converted = rst_to_markdown(NUMPY_EXAMPLE)
-    assert converted == NUMPY_EXAMPLE_MARKDOWN
-
-    # converts version changed
-    assert rst_to_markdown('.. versionchanged:: 0.23.0') == '*Changed in 0.23.0*'
-
-    # converts "see also" section
-    converted = rst_to_markdown(SEE_ALSO)
-    assert converted == SEE_ALSO_MARKDOWN
-  
-    # converts module
-    assert (
-        rst_to_markdown('Discrete Fourier Transform (:mod:`numpy.fft`)') == 'Discrete Fourier Transform (`numpy.fft`)'
-    )
-
-    assert rst_to_markdown(NUMPY_NOTE) == NUMPY_NOTE_MARKDOWN
-  
-
+@pytest.mark.parametrize(
+    'rst,markdown',
+    [[case['rst'], case['md']] for case in RST_CASES.values()],
+    ids=RST_CASES.keys()
+)
+def test_rst_to_markdown(rst, markdown):
+    converted = rst_to_markdown(rst)
+    print(converted)
+    assert converted == markdown
