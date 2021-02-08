@@ -350,6 +350,32 @@ plt.show()
 
 """
 
+WARNING_BLOCK = """
+Load pickled object from file.
+
+.. warning::
+   Loading pickled data received from untrusted sources can be
+   unsafe.
+
+Parameters
+"""
+
+
+WARNING_BLOCK_MARKDOWN = """
+Load pickled object from file.
+
+
+---
+**Warning**
+
+Loading pickled data received from untrusted sources can be
+unsafe.
+
+---
+
+Parameters
+"""
+
 
 INTEGRATION = """
 Return a fixed frequency DatetimeIndex.
@@ -431,6 +457,10 @@ RST_CASES = {
     'separates following paragraph after a code blocks without output': {
         'rst': CODE_BLOCK_BUT_NOT_OUTPUT,
         'md': CODE_BLOCK_BUT_NOT_OUTPUT_MD
+    },
+    'converts warnings': {
+        'rst': WARNING_BLOCK,
+        'md': WARNING_BLOCK_MARKDOWN
     }
 }
 
@@ -440,6 +470,7 @@ def test_looks_like_rst_recognises_rst():
     assert looks_like_rst('the following code ::\n\n\tcode')
     assert looks_like_rst('the following code::\n\n\tcode')
     assert looks_like_rst('See Also\n--------\n')
+    assert looks_like_rst('.. versionadded:: 0.1')
 
 
 def test_looks_like_rst_ignores_plain_text():

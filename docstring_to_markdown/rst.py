@@ -110,26 +110,31 @@ class IParser(ABC):
 
     @abstractmethod
     def can_parse(self, line: str) -> bool:
-        pass
+        """Whether the line looks like a valid beginning of parsed block."""
 
     @abstractmethod
     def initiate_parsing(self, line: str, current_language: str) -> IBlockBeginning:
-        pass
+        """Initiate parsing of given line.
+
+        Arguments:
+            line: first line to be parsed (that passed `can_parse()` test)
+            current_language: language to use if highlighting code and no other language is specified in `line`
+        """
 
     @abstractmethod
     def can_consume(self, line: str) -> bool:
-        pass
+        """Whether the line can be parsed, or does it look like an end of parsable area?"""
 
     @abstractmethod
     def consume(self, line: str) -> None:
-        pass
+        """Parse given line."""
 
     @abstractmethod
     def finish_consumption(self, final: bool) -> str:
-        pass
+        """Finish parsing and return the converted part of the docstring."""
 
-    def get_follower(self, line: str) -> Union['IParser', None]:
-        return None
+    """Is there another parser that should follow after this parser finished?"""
+    follower: Union['IParser', None] = None
 
 
 class BlockParser(IParser):
@@ -144,26 +149,11 @@ class BlockParser(IParser):
 
     @abstractmethod
     def can_parse(self, line: str) -> bool:
-        """
-        All children should call _start_block in initiate_parsing() implementation.
-        """
-        pass
-
-    @abstractmethod
-    def initiate_parsing(
-            self,
-            line: str,
-            current_language: str
-    ) -> IBlockBeginning:
-        pass
+        """All children should call _start_block in initiate_parsing() implementation."""
 
     def _start_block(self, language: str):
         self._buffer.append(self.enclosure + language)
         self._block_started = True
-
-    @abstractmethod
-    def can_consume(self, line: str) -> bool:
-        pass
 
     def consume(self, line: str):
         if not self._block_started:
@@ -222,8 +212,7 @@ class PythonOutputBlockParser(BlockParser):
         return line.strip() != '' and not line.startswith('>>>')
 
     def can_parse(self, line: str) -> bool:
-        # cannot be initiated directly
-        return False
+        return line.strip() != ''
 
     def initiate_parsing(self, line: str, current_language: str) -> IBlockBeginning:
         self._start_block('')
@@ -250,9 +239,7 @@ class PythonPromptCodeBlockParser(BlockParser):
         start = 4 if line.startswith('>>> ') or line.startswith('... ') else 3
         return line[start:]
 
-    def get_follower(self, line: str) -> Union['IParser', None]:
-        if line:
-            return PythonOutputBlockParser()
+    follower = PythonOutputBlockParser()
 
 
 class DoubleColonBlockParser(IndentedBlockParser):
@@ -286,12 +273,13 @@ class MathBlockParser(IndentedBlockParser):
 
 class NoteBlockParser(IndentedBlockParser):
     enclosure = '\n---'
+    directives = {'.. note::', '.. warning::'}
 
     def can_parse(self, line: str):
-        return line.strip() == '.. note::'
+        return line.strip() in self.directives
 
     def initiate_parsing(self, line: str, current_language: str):
-        self._start_block('\n**Note**\n')
+        self._start_block('\n**Note**\n' if 'note' in line else '\n**Warning**\n')
         return IBlockBeginning(remainder='')
 
 
@@ -378,8 +366,8 @@ def rst_to_markdown(text: str):
             else:
                 markdown += flush_buffer()
                 markdown += active_parser.finish_consumption(False)
-                follower = active_parser.get_follower(line)
-                if follower:
+                follower = active_parser.follower
+                if follower and follower.can_parse(line):
                     active_parser = follower
                     active_parser.initiate_parsing(line, language)
                 else:
