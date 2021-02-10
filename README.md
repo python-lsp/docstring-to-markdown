@@ -1,7 +1,7 @@
 # docstring-to-markdown
 
-[![tests](https://github.com/krassowski/jupyterlab-lsp/workflows/tests/badge.svg)](https://github.com/krassowski/docstring-to-markdown/actions?query=workflow%3A%22tests%22)
-![CodeQL](https://github.com/krassowski/data-vault/workflows/CodeQL/badge.svg)
+[![tests](https://github.com/krassowski/docstring-to-markdown/workflows/tests/badge.svg)](https://github.com/krassowski/docstring-to-markdown/actions?query=workflow%3A%22tests%22)
+![CodeQL](https://github.com/krassowski/docstring-to-markdown/workflows/CodeQL/badge.svg)
 [![pypi-version](https://img.shields.io/pypi/v/docstring-to-markdown.svg)](https://python.org/pypi/docstring-to-markdown)
 
 On the fly conversion of Python docstrings to markdown
