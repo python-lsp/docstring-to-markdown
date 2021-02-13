@@ -1,6 +1,6 @@
 from .rst import looks_like_rst, rst_to_markdown
 
-__version__ = "0.4"
+__version__ = "0.5"
 
 
 class UnknownFormatError(Exception):
