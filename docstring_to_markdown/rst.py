@@ -103,7 +103,7 @@ def looks_like_rst(value: str) -> bool:
         if re.search(directive.pattern, value):
             return True
     # allow "text::" or "text ::" but not "^::$" or "^:::$"
-    return re.search(r'(\s|\w)::\n', value) or '\n>>> ' in value
+    return bool(re.search(r'(\s|\w)::\n', value) or '\n>>> ' in value)
 
 
 class IBlockBeginning(SimpleNamespace):
@@ -146,7 +146,7 @@ class IParser(ABC):
 
 class BlockParser(IParser):
     enclosure = '```'
-    follower = None
+    follower: Union['IParser', None] = None
     _buffer: List[str]
     _block_started: bool
 
@@ -167,7 +167,7 @@ class BlockParser(IParser):
             raise ValueError('Block has not started')
         self._buffer.append(line)
 
-    def finish_consumption(self, final: bool):
+    def finish_consumption(self, final: bool) -> str:
         # if the last line is empty (e.g. a separator of intended block), discard it
         if self._buffer[len(self._buffer) - 1].strip() == '':
             self._buffer.pop()
@@ -196,7 +196,7 @@ class IndentedBlockParser(BlockParser, ABC):
     def can_consume(self, line: str) -> bool:
         if self._is_block_beginning and line.strip() == '':
             return True
-        return (len(line) > 0 and re.match(r'^\s', line[0])) or len(line) == 0
+        return bool((len(line) > 0 and re.match(r'^\s', line[0])) or len(line) == 0)
 
     def consume(self, line: str):
         if self._is_block_beginning:
@@ -296,6 +296,8 @@ class ExplicitCodeBlockParser(IndentedBlockParser):
 
     def initiate_parsing(self, line: str, current_language: str) -> IBlockBeginning:
         match = re.match(CODE_BLOCK_PATTERN, line)
+        # already checked in can_parse
+        assert match
         self._start_block(match.group('language').strip() or current_language)
         return IBlockBeginning(remainder='')
 
@@ -319,7 +321,7 @@ DIRECTIVES = [
 ]
 
 
-def rst_to_markdown(text: str):
+def rst_to_markdown(text: str) -> str:
     """
     Try to parse docstrings in following formats to markdown:
     - https://www.python.org/dev/peps/pep-0287/
