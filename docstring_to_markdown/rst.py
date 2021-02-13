@@ -25,8 +25,8 @@ RST_DIRECTIVES: List[Directive] = [
         replacement=r'*Deprecated since \g<version>*\g<end>'
     ),
     Directive(
-        pattern=r'\.\. warning::/g',
-        replacement=r'**Warning**'
+        pattern=r'\.\. warning::',
+        replacement=r'**Warning**:'
     ),
     Directive(
         pattern=r'\.\. seealso::(?P<short_form>.*)(?P<end>$|\n)',

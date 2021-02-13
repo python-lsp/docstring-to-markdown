@@ -377,6 +377,23 @@ Parameters
 """
 
 
+LINE_WARNING = """
+Create a view into the array with the given shape and strides.
+
+.. warning:: This function has to be used with extreme care, see notes.
+
+Parameters
+"""
+
+LINE_WARNING_MARKDOWN = """
+Create a view into the array with the given shape and strides.
+
+**Warning**: This function has to be used with extreme care, see notes.
+
+Parameters
+"""
+
+
 INTEGRATION = """
 Return a fixed frequency DatetimeIndex.
 
@@ -458,9 +475,13 @@ RST_CASES = {
         'rst': CODE_BLOCK_BUT_NOT_OUTPUT,
         'md': CODE_BLOCK_BUT_NOT_OUTPUT_MD
     },
-    'converts warnings': {
+    'converts block warnings': {
         'rst': WARNING_BLOCK,
         'md': WARNING_BLOCK_MARKDOWN
+    },
+    'converts single-line warnings': {
+        'rst': LINE_WARNING,
+        'md': LINE_WARNING_MARKDOWN
     },
     'escapes double dunders': {
         # this is guaranteed to not be any rst markup as per
