@@ -164,7 +164,7 @@ class BlockParser(IParser):
 
     def consume(self, line: str):
         if not self._block_started:
-            raise ValueError('Block has not started')
+            raise ValueError('Block has not started')   # pragma: no cover
         self._buffer.append(line)
 
     def finish_consumption(self, final: bool) -> str:
@@ -399,13 +399,22 @@ def rst_to_markdown(text: str) -> str:
             # ok, we are not in any code block (it may start with the next line, but this line is clear - or empty)
 
             # lists handling: items detection
-            match = re.match(r'^(?P<argument>[^: ]+) : (?P<type>.+)$', trimmed_line)
+            # this one does NOT allow spaces on the left hand side (to avoid false positive matches)
+            match = re.match(r'^(?P<argument>[^:\s]+) : (?P<type>.+)$', trimmed_line)
             if match:
                 line = '- `' + match.group('argument') + '`: ' + match.group('type') + ''
             elif most_recent_section == 'Parameters':
                 kwargs_or_args_match = re.match(r'^(?P<other_args>\*\*kwargs|\*args)$', trimmed_line)
                 if kwargs_or_args_match:
                     line = '- `' + kwargs_or_args_match.group('other_args') + '`'
+                else:
+                    numpy_args_match = re.match(
+                        r'^(?P<arg1>[^:\s]+\d), (?P<arg2>[^:\s]+\d), \.\.\. : (?P<type>.+)$',
+                        trimmed_line
+                    )
+                    if numpy_args_match:
+                        groups = numpy_args_match.groupdict()
+                        line = f'- `{groups["arg1"]}`, `{groups["arg2"]}`, `...`: {groups["type"]}'
             else:
                 if trimmed_line.rstrip() in RST_SECTIONS:
                     most_recent_section = trimmed_line.rstrip()

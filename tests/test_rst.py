@@ -293,6 +293,22 @@ KWARGS_PARAMETERS_MARKDOWN = """
     For other keyword-only arguments, see the ufunc docs.
 """
 
+NUMPY_ARGS_PARAMETERS = """
+Parameters
+----------
+arys1, arys2, ... : array_like
+    One or more input arrays.
+"""
+
+
+NUMPY_ARGS_PARAMETERS_MARKDOWN = """
+#### Parameters
+
+- `arys1`, `arys2`, `...`: array_like
+    One or more input arrays.
+"""
+
+
 INITIAL_SIGNATURE = """\
 absolute1(x, /, out=None, *, where=True, casting='same_kind', order='K', dtype=None, subok=True[, signature, extobj])
 
@@ -466,6 +482,10 @@ RST_CASES = {
     'includes kwargs in parameters list': {
         'rst': KWARGS_PARAMETERS,
         'md': KWARGS_PARAMETERS_MARKDOWN
+    },
+    'converts numpy-style *args parameters': {
+        'rst': NUMPY_ARGS_PARAMETERS,
+        'md': NUMPY_ARGS_PARAMETERS_MARKDOWN
     },
     'converts signature in the first line': {
         'rst': INITIAL_SIGNATURE,
