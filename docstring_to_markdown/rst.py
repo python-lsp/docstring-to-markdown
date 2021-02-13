@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from types import SimpleNamespace
-from typing import Union, List
+from typing import Union, List, Dict
 import re
 
 
@@ -68,6 +68,40 @@ RST_DIRECTIVES: List[Directive] = [
     )
 ]
 
+
+_RST_SECTIONS = {
+    'Parameters',
+    'Returns',
+    'See Also',
+    'Examples',
+    'Attributes',
+    'Notes',
+    'References'
+}
+
+
+# TODO: type with RstSection = Literal[], and generate _RST_SECTIONS out of it once
+#  support for Python 3.6 can be safely dropped
+SECTION_DIRECTIVES: Dict[str, List[Directive]] = {
+    'Parameters': [
+        Directive(
+            pattern=r'^(?P<other_args>\*\*kwargs|\*args)$',
+            replacement=r'- `\g<other_args>`'
+        ),
+        Directive(
+            pattern=r'^(?P<arg1>[^:\s]+\d), (?P<arg2>[^:\s]+\d), \.\.\. : (?P<type>.+)$',
+            replacement=r'- `\g<arg1>`, `\g<arg2>`, `...`: \g<type>'
+        )
+    ],
+    'References': [
+        Directive(
+            pattern=r'^\.\. \[(?P<number>\d+)\] (?P<first_line>.+)$',
+            replacement=r'- [\g<number>] \g<first_line>'
+        )
+    ]
+}
+
+
 ESCAPING_RULES: List[Directive] = [
     Directive(
         pattern=r'__(?P<text>\S+)__',
@@ -85,16 +119,6 @@ def _find_directive_pattern(name: str):
 
 HIGHLIGHT_PATTERN = _find_directive_pattern('highlight')
 CODE_BLOCK_PATTERN = _find_directive_pattern('code-block')
-
-_RST_SECTIONS = {
-    'Parameters',
-    'Returns',
-    'See Also',
-    'Examples',
-    'Attributes',
-    'Notes',
-    'References'
-}
 
 
 def looks_like_rst(value: str) -> bool:
@@ -406,19 +430,12 @@ def rst_to_markdown(text: str) -> str:
             match = re.match(r'^(?P<argument>[^:\s]+) : (?P<type>.+)$', trimmed_line)
             if match:
                 line = '- `' + match.group('argument') + '`: ' + match.group('type') + ''
-            elif most_recent_section == 'Parameters':
-                kwargs_or_args_match = re.match(r'^(?P<other_args>\*\*kwargs|\*args)$', trimmed_line)
-                if kwargs_or_args_match:
-                    line = '- `' + kwargs_or_args_match.group('other_args') + '`'
-                else:
-                    numpy_args_match = re.match(
-                        r'^(?P<arg1>[^:\s]+\d), (?P<arg2>[^:\s]+\d), \.\.\. : (?P<type>.+)$',
-                        trimmed_line
-                    )
-                    if numpy_args_match:
-                        groups = numpy_args_match.groupdict()
-                        line = f'- `{groups["arg1"]}`, `{groups["arg2"]}`, `...`: {groups["type"]}'
             else:
+                if most_recent_section in SECTION_DIRECTIVES:
+                    for section_directive in SECTION_DIRECTIVES[most_recent_section]:
+                        if re.match(section_directive.pattern, trimmed_line):
+                            line = re.sub(section_directive.pattern, section_directive.replacement, trimmed_line)
+                            break
                 if trimmed_line.rstrip() in RST_SECTIONS:
                     most_recent_section = trimmed_line.rstrip()
 

@@ -426,6 +426,29 @@ Parameters
 """
 
 
+REFERENCES = """
+References
+----------
+.. [1] M.S. Bartlett, "Periodogram Analysis and Continuous Spectra",
+   Biometrika 37, 1-16, 1950.
+.. [2] E.R. Kanasewich, "Time Sequence Analysis in Geophysics",
+   The University of Alberta Press, 1975, pp. 109-110.
+.. [3] Wikipedia, "Window function",
+   https://en.wikipedia.org/wiki/Window_function
+"""
+
+REFERENCES_MARKDOWN = """
+#### References
+
+- [1] M.S. Bartlett, "Periodogram Analysis and Continuous Spectra",
+   Biometrika 37, 1-16, 1950.
+- [2] E.R. Kanasewich, "Time Sequence Analysis in Geophysics",
+   The University of Alberta Press, 1975, pp. 109-110.
+- [3] Wikipedia, "Window function",
+   https://en.wikipedia.org/wiki/Window_function
+"""
+
+
 INTEGRATION = """
 Return a fixed frequency DatetimeIndex.
 
@@ -471,7 +494,7 @@ RST_CASES = {
         'rst': MATH_INLINE_BLOCK,
         'md': MATH_INLINE_BLOCK_MARKDOWN
     },
-    'converts references': {
+    'converts refs': {
         'rst': RST_REF_EXAMPLE,
         'md': RST_REF_MARKDOWN
     },
@@ -529,6 +552,10 @@ RST_CASES = {
         'rst': '__init__',
         'md': r'\_\_init\_\_'
     },
+    'converts bibliographic references': {
+        'rst': REFERENCES,
+        'md': REFERENCES_MARKDOWN
+    }
 }
 
 
