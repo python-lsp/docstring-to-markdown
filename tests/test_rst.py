@@ -275,6 +275,22 @@ $$
 which extends in the obvious way to higher dimensions, and the inverses
 """
 
+MATH_INLINE_BLOCK = """
+covariance matrix, `C`, is
+
+.. math:: R_{ij} = \\frac{ C_{ij} } { \\sqrt{ C_{ii} * C_{jj} } }
+
+The values of `R` are between -1 and 1, inclusive.
+"""
+
+MATH_INLINE_BLOCK_MARKDOWN = """
+covariance matrix, `C`, is
+
+$$R_{ij} = \\frac{ C_{ij} } { \\sqrt{ C_{ii} * C_{jj} } }$$
+
+The values of `R` are between -1 and 1, inclusive.
+"""
+
 KWARGS_PARAMETERS = """
 Parameters
 ----------
@@ -451,6 +467,10 @@ RST_CASES = {
         'rst': RST_MATH_EXAMPLE,
         'md': RST_MATH_EXAMPLE_MARKDOWN
     },
+    'converts inline-block math': {
+        'rst': MATH_INLINE_BLOCK,
+        'md': MATH_INLINE_BLOCK_MARKDOWN
+    },
     'converts references': {
         'rst': RST_REF_EXAMPLE,
         'md': RST_REF_MARKDOWN
@@ -499,7 +519,7 @@ RST_CASES = {
         'rst': WARNING_BLOCK,
         'md': WARNING_BLOCK_MARKDOWN
     },
-    'converts single-line warnings': {
+    'converts inline-block warnings': {
         'rst': LINE_WARNING,
         'md': LINE_WARNING_MARKDOWN
     },

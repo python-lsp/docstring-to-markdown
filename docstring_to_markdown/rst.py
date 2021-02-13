@@ -50,8 +50,11 @@ RST_DIRECTIVES: List[Directive] = [
     ),
     Directive(
         pattern=r':math:`(?P<latex>[^`]+?)`',
-        # this will give $latex$, the second dollar is an escape character
         replacement=r'$\g<latex>$'
+    ),
+    Directive(
+        pattern=r'\.\. math:: (?P<latex>[^`]+?)(?P<end>$|\n)',
+        replacement=r'$$\g<latex>$$\g<end>'
     ),
     Directive(
         pattern=r'\.\. highlight:: (?P<language>.+)(?P<end>$|\n)',
