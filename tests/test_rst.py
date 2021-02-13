@@ -77,6 +77,7 @@ RST_LINK_EXAMPLE_MARKDOWN = (
     "To learn more about the frequency strings, please see "
     "[this link](https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases)."
 )
+
 RST_REF_EXAMPLE = """See :ref:`here <timeseries.offset_aliases>` for a list of frequency aliases."""
 RST_REF_MARKDOWN = """See here: `timeseries.offset_aliases` for a list of frequency aliases."""
 
@@ -440,11 +441,11 @@ References
 REFERENCES_MARKDOWN = """
 #### References
 
-- [1] M.S. Bartlett, "Periodogram Analysis and Continuous Spectra",
+ - [1] M.S. Bartlett, "Periodogram Analysis and Continuous Spectra",
    Biometrika 37, 1-16, 1950.
-- [2] E.R. Kanasewich, "Time Sequence Analysis in Geophysics",
+ - [2] E.R. Kanasewich, "Time Sequence Analysis in Geophysics",
    The University of Alberta Press, 1975, pp. 109-110.
-- [3] Wikipedia, "Window function",
+ - [3] Wikipedia, "Window function",
    https://en.wikipedia.org/wiki/Window_function
 """
 
@@ -555,6 +556,18 @@ RST_CASES = {
     'converts bibliographic references': {
         'rst': REFERENCES,
         'md': REFERENCES_MARKDOWN
+    },
+    'converts sphinx func, meth, and class': {
+        'rst': ':func:`function1`, :meth:`.Script.inline`, :class:`.Environment`',
+        'md': '`function1`, `Script.inline`, `Environment`'
+    },
+    'converts sphinx params': {
+        'rst': ':param x: test arg',
+        'md': '- `x`: test arg'
+    },
+    'converts sphinx return': {
+        'rst': ':return: return description',
+        'md': 'Returns: return description'
     }
 }
 

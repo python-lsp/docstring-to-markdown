@@ -11,6 +11,22 @@ class Directive:
         self.name = name
 
 
+SPHINX_RULES: List[Directive] = [
+    Directive(
+        pattern=r':(func|meth|class):`\.?(?P<name>[^`]+?)`',
+        replacement=r'`\g<name>`'
+    ),
+    Directive(
+        pattern=r'^:param (?P<param>\S+):',
+        replacement=r'- `\g<param>`:'
+    ),
+    Directive(
+        pattern=r'^:return:',
+        replacement=r'Returns:'
+    )
+]
+
+
 RST_DIRECTIVES: List[Directive] = [
     Directive(
         pattern=r'\.\. versionchanged:: (?P<version>\S+)(?P<end>$|\n)',
@@ -65,7 +81,8 @@ RST_DIRECTIVES: List[Directive] = [
         pattern=r'\.\. (code-block|productionlist)::(?P<language>.*)(?P<end>$|\n)',
         replacement=r'\g<end>',
         name='code-block'
-    )
+    ),
+    *SPHINX_RULES
 ]
 
 
@@ -96,7 +113,7 @@ SECTION_DIRECTIVES: Dict[str, List[Directive]] = {
     'References': [
         Directive(
             pattern=r'^\.\. \[(?P<number>\d+)\] (?P<first_line>.+)$',
-            replacement=r'- [\g<number>] \g<first_line>'
+            replacement=r' - [\g<number>] \g<first_line>'
         )
     ]
 }
