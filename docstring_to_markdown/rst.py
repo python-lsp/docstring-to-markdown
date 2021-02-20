@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from enum import IntEnum, auto
 from types import SimpleNamespace
 from typing import Union, List, Dict
 import re
@@ -188,6 +189,95 @@ class IParser(ABC):
     follower: Union['IParser', None] = None
 
 
+class TableParser(IParser):
+
+    class State(IntEnum):
+        AWAITS = auto()
+        PARSING_HEADER = auto()
+        PARSED_HEADER = auto()
+        PARSING_ROWS = auto()
+        FINISHED = auto()
+
+    outer_border_pattern = r'^=+( +=+)+$'
+
+    _state: int
+    _column_starts: List[int]
+    _columns: List[str]
+    _rows: List[List[str]]
+    _max_sizes: List[int]
+
+    def _reset_state(self):
+        self._state = TableParser.State.AWAITS
+        self._column_starts = []
+        self._columns = []
+        self._rows = []
+        self._max_sizes = []
+
+    def can_parse(self, line: str) -> bool:
+        return bool(re.match(self.outer_border_pattern, line))
+
+    def initiate_parsing(self, line: str, current_language: str) -> IBlockBeginning:
+        self._reset_state()
+        match = re.match(self.outer_border_pattern, line)
+        assert match
+        self._column_starts = []
+        previous = ' '
+        for i, char in enumerate(line):
+            if char == '=' and previous == ' ':
+                self._column_starts.append(i)
+            previous = char
+        self._max_sizes = [0 for i in self._column_starts]
+        self._state = TableParser.State.PARSING_HEADER
+        return IBlockBeginning(remainder='')
+
+    def can_consume(self, line: str) -> bool:
+        return bool(self._state != TableParser.State.FINISHED)
+
+    def consume(self, line: str) -> None:
+        states = TableParser.State
+        if self._state == states.PARSING_HEADER:
+            self._columns = self._split(line)
+            self._state += 1
+        elif self._state == states.PARSED_HEADER:
+            # TODO: check integrity?
+            self._state += 1
+        elif self._state == states.PARSING_ROWS:
+            match = re.match(self.outer_border_pattern, line)
+            if match:
+                self._state += 1
+            else:
+                self._rows.append(self._split(line))
+
+    def _split(self, line: str) -> List[str]:
+        assert self._column_starts
+        fragments = []
+        for i, start in enumerate(self._column_starts):
+            end = self._column_starts[i + 1] if i < len(self._column_starts) - 1 else None
+            fragment = line[start:end].strip()
+            self._max_sizes[i] = max(self._max_sizes[i], len(fragment))
+            fragments.append(fragment)
+        return fragments
+
+    def _wrap(self, row: List[str], align=str.ljust) -> str:
+        padded_row = [
+            align(e, self._max_sizes[i])
+            for i, e in enumerate(row)
+        ]
+        return '| ' + (' | '.join(padded_row)) + ' |\n'
+
+    def finish_consumption(self, final: bool) -> str:
+        result = self._wrap(self._columns, align=str.center)
+        result += self._wrap([
+            '-' * size
+            for size in self._max_sizes
+        ])
+
+        for row in self._rows:
+            result += self._wrap(row)
+
+        return result
+
+
 class BlockParser(IParser):
     enclosure = '```'
     follower: Union['IParser', None] = None
@@ -351,7 +441,8 @@ BLOCK_PARSERS = [
     NoteBlockParser(),
     MathBlockParser(),
     ExplicitCodeBlockParser(),
-    DoubleColonBlockParser()
+    DoubleColonBlockParser(),
+    TableParser()
 ]
 
 RST_SECTIONS = {
