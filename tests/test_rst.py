@@ -450,6 +450,48 @@ REFERENCES_MARKDOWN = """
 """
 
 
+SIMPLE_TABLE = """
+.. warning:: This is not a standard simple table
+
+========= ===============================================================
+Character Meaning
+--------- ---------------------------------------------------------------
+'r'       open for reading (default)
+'a'       open for writing, appending to the end of the file if it exists
+========= ===============================================================
+"""
+
+SIMPLE_TABLE_MARKDOWN = """
+**Warning**: This is not a standard simple table
+
+| Character |                             Meaning                             |
+| --------- | --------------------------------------------------------------- |
+| 'r'       | open for reading (default)                                      |
+| 'a'       | open for writing, appending to the end of the file if it exists |
+"""
+
+
+SIMPLE_TABLE_2 = """
+.. warning:: This is a standard simple table
+
+=====  =====  =======
+  A      B    A and B
+=====  =====  =======
+False  False  False
+True   False  False
+=====  =====  =======
+"""
+
+SIMPLE_TABLE_2_MARKDOWN = """
+**Warning**: This is a standard simple table
+
+|   A   |   B   | A and B |
+| ----- | ----- | ------- |
+| False | False | False   |
+| True  | False | False   |
+"""
+
+
 INTEGRATION = """
 Return a fixed frequency DatetimeIndex.
 
@@ -568,6 +610,14 @@ RST_CASES = {
     'converts sphinx return': {
         'rst': ':return: return description',
         'md': 'Returns: return description'
+    },
+    'converts non-standard simple table': {
+        'rst': SIMPLE_TABLE,
+        'md': SIMPLE_TABLE_MARKDOWN
+    },
+    'converts standard simple table': {
+        'rst': SIMPLE_TABLE_2,
+        'md': SIMPLE_TABLE_2_MARKDOWN
     }
 }
 
