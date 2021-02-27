@@ -198,13 +198,14 @@ class TableParser(IParser):
         PARSING_ROWS = auto()
         FINISHED = auto()
 
-    outer_border_pattern = r'^=+( +=+)+$'
+    outer_border_pattern = r'^(\s*)=+( +=+)+$'
 
     _state: int
     _column_starts: List[int]
     _columns: List[str]
     _rows: List[List[str]]
     _max_sizes: List[int]
+    _indent: str
 
     def _reset_state(self):
         self._state = TableParser.State.AWAITS
@@ -212,6 +213,7 @@ class TableParser(IParser):
         self._columns = []
         self._rows = []
         self._max_sizes = []
+        self._indent = ''
 
     def can_parse(self, line: str) -> bool:
         return bool(re.match(self.outer_border_pattern, line))
@@ -220,6 +222,7 @@ class TableParser(IParser):
         self._reset_state()
         match = re.match(self.outer_border_pattern, line)
         assert match
+        self._indent = match.group(1) or ''
         self._column_starts = []
         previous = ' '
         for i, char in enumerate(line):
@@ -263,7 +266,7 @@ class TableParser(IParser):
             align(e, self._max_sizes[i])
             for i, e in enumerate(row)
         ]
-        return '| ' + (' | '.join(padded_row)) + ' |\n'
+        return self._indent + '| ' + (' | '.join(padded_row)) + ' |\n'
 
     def finish_consumption(self, final: bool) -> str:
         result = self._wrap(self._columns, align=str.center)

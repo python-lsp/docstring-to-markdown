@@ -491,6 +491,45 @@ SIMPLE_TABLE_2_MARKDOWN = """
 | True  | False | False   |
 """
 
+SIMPLE_TABLE_IN_PARAMS = """
+Create an array.
+Parameters
+----------
+object : array_like
+    An array, any object exposing the array interface, an object whose
+    __array__ method returns an array, or any (nested) sequence.
+order : {'K', 'A', 'C', 'F'}, optional
+    Specify the memory layout of the array.
+    If object is an array the following holds.
+    ===== ========= ===================================================
+    order  no copy                     copy=True
+    ===== ========= ===================================================
+    'K'   unchanged F & C order preserved, otherwise most similar order
+    'F'   F order   F order
+    ===== ========= ===================================================
+    When ``copy=False`` and a copy is made for other reasons...
+subok : bool, optional
+    If True, then sub-classes will be passed-through, otherwise
+"""
+
+SIMPLE_TABLE_IN_PARAMS_MARKDOWN = r"""
+Create an array.
+#### Parameters
+
+- `object`: array_like
+    An array, any object exposing the array interface, an object whose
+    \_\_array\_\_ method returns an array, or any (nested) sequence.
+- `order`: {'K', 'A', 'C', 'F'}, optional
+    Specify the memory layout of the array.
+    If object is an array the following holds.
+    | order |  no copy  |                      copy=True                      |
+    | ----- | --------- | --------------------------------------------------- |
+    | 'K'   | unchanged | F & C order preserved, otherwise most similar order |
+    | 'F'   | F order   | F order                                             |
+    When ``copy=False`` and a copy is made for other reasons...
+- `subok`: bool, optional
+    If True, then sub-classes will be passed-through, otherwise
+"""
 
 INTEGRATION = """
 Return a fixed frequency DatetimeIndex.
@@ -618,6 +657,10 @@ RST_CASES = {
     'converts standard simple table': {
         'rst': SIMPLE_TABLE_2,
         'md': SIMPLE_TABLE_2_MARKDOWN
+    },
+    'converts indented simple table': {
+        'rst': SIMPLE_TABLE_IN_PARAMS,
+        'md': SIMPLE_TABLE_IN_PARAMS_MARKDOWN
     }
 }
 
