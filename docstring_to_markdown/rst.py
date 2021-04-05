@@ -14,7 +14,7 @@ class Directive:
 
 SPHINX_RULES: List[Directive] = [
     Directive(
-        pattern=r':(func|meth|class):`\.?(?P<name>[^`]+?)`',
+        pattern=r':(func|meth|class|obj|term):`\.?(?P<name>[^`]+?)`',
         replacement=r'`\g<name>`'
     ),
     Directive(
