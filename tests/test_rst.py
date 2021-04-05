@@ -531,6 +531,43 @@ Create an array.
     If True, then sub-classes will be passed-through, otherwise
 """
 
+GRID_TABLE_IN_SKLEARN = """
+Attributes
+----------
+cv_results_ : dict of numpy (masked) ndarrays
+    A dict with keys as column headers and values as columns, that can be
+    imported into a pandas ``DataFrame``.
+    For instance the below given table
+    +------------+-----------+------------+-----------------+---+---------+
+    |param_kernel|param_gamma|param_degree|split0_test_score|...|rank_t...|
+    +============+===========+============+=================+===+=========+
+    |  'poly'    |     --    |      2     |       0.80      |...|    2    |
+    +------------+-----------+------------+-----------------+---+---------+
+    |  'poly'    |     --    |      3     |       0.70      |...|    4    |
+    +------------+-----------+------------+-----------------+---+---------+
+    |  'rbf'     |     0.1   |     --     |       0.80      |...|    3    |
+    +------------+-----------+------------+-----------------+---+---------+
+    |  'rbf'     |     0.2   |     --     |       0.93      |...|    1    |
+    +------------+-----------+------------+-----------------+---+---------+
+    will be represented by a ``cv_results_`` dict
+"""
+
+GRID_TABLE_IN_SKLEARN_MARKDOWN = """
+#### Attributes
+
+- `cv_results_`: dict of numpy (masked) ndarrays
+    A dict with keys as column headers and values as columns, that can be
+    imported into a pandas ``DataFrame``.
+    For instance the below given table
+    | param_kernel | param_gamma | param_degree | split0_test_score | ... | rank_t... |
+    | ------------ | ----------- | ------------ | ----------------- | --- | --------- |
+    | 'poly'       | --          | 2            | 0.80              | ... | 2         |
+    | 'poly'       | --          | 3            | 0.70              | ... | 4         |
+    | 'rbf'        | 0.1         | --           | 0.80              | ... | 3         |
+    | 'rbf'        | 0.2         | --           | 0.93              | ... | 1         |
+    will be represented by a ``cv_results_`` dict
+"""
+
 INTEGRATION = """
 Return a fixed frequency DatetimeIndex.
 
@@ -661,6 +698,10 @@ RST_CASES = {
     'converts indented simple table': {
         'rst': SIMPLE_TABLE_IN_PARAMS,
         'md': SIMPLE_TABLE_IN_PARAMS_MARKDOWN
+    },
+    'converts indented grid table': {
+        'rst': GRID_TABLE_IN_SKLEARN,
+        'md': GRID_TABLE_IN_SKLEARN_MARKDOWN
     }
 }
 
