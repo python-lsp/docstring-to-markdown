@@ -198,18 +198,26 @@ class TableParser(IParser):
         PARSING_ROWS = auto()
         FINISHED = auto()
 
-    outer_border_pattern = r'^(\s*)=+( +=+)+$'
+    outer_border_pattern: str
+    column_top_prefix: str
+    column_top_border: str
+    column_end_offset: int
 
     _state: int
     _column_starts: List[int]
+    _columns_end: int
     _columns: List[str]
     _rows: List[List[str]]
     _max_sizes: List[int]
     _indent: str
 
+    def __init__(self):
+        self._reset_state()
+
     def _reset_state(self):
         self._state = TableParser.State.AWAITS
         self._column_starts = []
+        self._columns_end = -1
         self._columns = []
         self._rows = []
         self._max_sizes = []
@@ -222,11 +230,13 @@ class TableParser(IParser):
         self._reset_state()
         match = re.match(self.outer_border_pattern, line)
         assert match
-        self._indent = match.group(1) or ''
+        groups = match.groupdict()
+        self._indent = groups['indent'] or ''
         self._column_starts = []
-        previous = ' '
+        self._columns_end = match.end('column')
+        previous = self.column_top_prefix
         for i, char in enumerate(line):
-            if char == '=' and previous == ' ':
+            if char == self.column_top_border and previous == self.column_top_prefix:
                 self._column_starts.append(i)
             previous = char
         self._max_sizes = [0 for i in self._column_starts]
@@ -245,17 +255,24 @@ class TableParser(IParser):
             # TODO: check integrity?
             self._state += 1
         elif self._state == states.PARSING_ROWS:
-            match = re.match(self.outer_border_pattern, line)
-            if match:
-                self._state += 1
-            else:
-                self._rows.append(self._split(line))
+            self._consume_row(line)
+
+    def _consume_row(self, line: str):
+        match = re.match(self.outer_border_pattern, line)
+        if match:
+            self._state += 1
+        else:
+            self._rows.append(self._split(line))
 
     def _split(self, line: str) -> List[str]:
         assert self._column_starts
         fragments = []
         for i, start in enumerate(self._column_starts):
-            end = self._column_starts[i + 1] if i < len(self._column_starts) - 1 else None
+            end = (
+                self._column_starts[i + 1] + self.column_end_offset
+                if i < len(self._column_starts) - 1 else
+                self._columns_end
+            )
             fragment = line[start:end].strip()
             self._max_sizes[i] = max(self._max_sizes[i], len(fragment))
             fragments.append(fragment)
@@ -279,6 +296,48 @@ class TableParser(IParser):
             result += self._wrap(row)
 
         return result
+
+
+class SimpleTableParser(TableParser):
+    outer_border_pattern = r'^(?P<indent>\s*)=+(?P<column> +=+)+$'
+    column_top_prefix = ' '
+    column_top_border = '='
+    column_end_offset = 0
+
+
+class GridTableParser(TableParser):
+    outer_border_pattern = r'^(?P<indent>\s*)(?P<column>\+-+)+\+$'
+    column_top_prefix = '+'
+    column_top_border = '-'
+    column_end_offset = -1
+
+    _expecting_row_content: bool
+
+    def _reset_state(self):
+        super()._reset_state()
+        self._expecting_row_content = True
+
+    def _is_correct_row(self, line: str) -> bool:
+        stripped = line.lstrip()
+        if self._expecting_row_content:
+            return stripped.startswith('|')
+        else:
+            return stripped.startswith('+-')
+
+    def can_consume(self, line: str) -> bool:
+        return (
+            bool(self._state != TableParser.State.FINISHED)
+            and
+            (self._state != TableParser.State.PARSING_ROWS or self._is_correct_row(line))
+        )
+
+    def _consume_row(self, line: str):
+        if self._is_correct_row(line):
+            if self._expecting_row_content:
+                self._rows.append(self._split(line))
+            self._expecting_row_content = not self._expecting_row_content
+        else:
+            self._state += 1
 
 
 class BlockParser(IParser):
@@ -445,7 +504,8 @@ BLOCK_PARSERS = [
     MathBlockParser(),
     ExplicitCodeBlockParser(),
     DoubleColonBlockParser(),
-    TableParser()
+    SimpleTableParser(),
+    GridTableParser()
 ]
 
 RST_SECTIONS = {
