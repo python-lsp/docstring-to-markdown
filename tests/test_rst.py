@@ -568,6 +568,46 @@ GRID_TABLE_IN_SKLEARN_MARKDOWN = """
     will be represented by a ``cv_results_`` dict
 """
 
+
+NESTED_PARAMETERS = """
+Parameters
+----------
+transformers : list of tuples
+    List of (name, transformer, columns) tuples.
+    name : str
+        Like in Pipeline and FeatureUnion, this allows the transformer and
+        search.
+    transformer : {'drop', 'passthrough'} or estimator
+        Estimator must support :term:`fit` and :term:`transform`.
+    columns :  str, array-like of str, int, array-like of int, \
+            array-like of bool, slice or callable
+        Indexes the data on its second axis. Integers are interpreted as
+        above. To select multiple columns by name or dtype, you can use
+        :obj:`make_column_selector`.
+remainder : {'drop', 'passthrough'} or estimator, default='drop'
+    By default, only the specified columns in `transformers` are
+"""
+
+NESTED_PARAMETERS_MARKDOWN = """
+#### Parameters
+
+- `transformers`: list of tuples
+    List of (name, transformer, columns) tuples.
+    - `name`: str
+        Like in Pipeline and FeatureUnion, this allows the transformer and
+        search.
+    - `transformer`: {'drop', 'passthrough'} or estimator
+        Estimator must support `fit` and `transform`.
+    - `columns`:  str, array-like of str, int, array-like of int, \
+            array-like of bool, slice or callable
+        Indexes the data on its second axis. Integers are interpreted as
+        above. To select multiple columns by name or dtype, you can use
+        `make_column_selector`.
+- `remainder`: {'drop', 'passthrough'} or estimator, default='drop'
+    By default, only the specified columns in `transformers` are
+"""
+
+
 INTEGRATION = """
 Return a fixed frequency DatetimeIndex.
 
@@ -702,6 +742,10 @@ RST_CASES = {
     'converts indented grid table': {
         'rst': GRID_TABLE_IN_SKLEARN,
         'md': GRID_TABLE_IN_SKLEARN_MARKDOWN
+    },
+    'converts nested parameter lists': {
+        'rst': NESTED_PARAMETERS,
+        'md': NESTED_PARAMETERS_MARKDOWN
     }
 }
 

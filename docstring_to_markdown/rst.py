@@ -598,9 +598,9 @@ def rst_to_markdown(text: str) -> str:
 
             # lists handling: items detection
             # this one does NOT allow spaces on the left hand side (to avoid false positive matches)
-            match = re.match(r'^(?P<argument>[^:\s]+) : (?P<type>.+)$', trimmed_line)
+            match = re.match(r'^(?P<indent>\s*)(?P<argument>[^:\s]+) : (?P<type>.+)$', line)
             if match:
-                line = '- `' + match.group('argument') + '`: ' + match.group('type') + ''
+                line = match.group('indent') + '- `' + match.group('argument') + '`: ' + match.group('type') + ''
             else:
                 if most_recent_section in SECTION_DIRECTIVES:
                     for section_directive in SECTION_DIRECTIVES[most_recent_section]:
