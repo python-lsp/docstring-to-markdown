@@ -624,6 +624,28 @@ To learn more about the frequency strings, please see `this link
 """
 
 
+# https://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html#info-field-lists
+SPHINX_SIGNATURE = """
+:param str sender: The person sending the message
+:param str recipient: The recipient of the message
+:param str message_body: The body of the message
+:param priority: The priority of the message, can be a number 1-5
+:type priority: integer or None
+:return: the message id
+:rtype: int
+:raises ValueError: if the message_body exceeds 160 characters
+"""
+
+SPHINX_SIGNATURE_MARKDOWN = """\
+- `sender` (`str`): The person sending the message
+- `recipient` (`str`): The recipient of the message
+- `message_body` (`str`): The body of the message
+- `priority` (integer or None): The priority of the message, can be a number 1-5
+- returns: the message id
+- return type: `int`
+- raises `ValueError`: if the message_body exceeds 160 characters
+"""
+
 RST_CASES = {
     'handles prompt continuation and multi-line output': {
         'rst': CODE_MULTI_LINE_CODE_OUTPUT,
@@ -739,9 +761,9 @@ RST_CASES = {
         'rst': ':param x: test arg',
         'md': '- `x`: test arg'
     },
-    'converts sphinx return': {
-        'rst': ':return: return description',
-        'md': 'Returns: return description'
+    'converts indented sphinx params': {
+        'rst': '\t:param x: test arg',
+        'md': '- `x`: test arg'
     },
     'converts non-standard simple table': {
         'rst': SIMPLE_TABLE,
@@ -762,6 +784,10 @@ RST_CASES = {
     'converts nested parameter lists': {
         'rst': NESTED_PARAMETERS,
         'md': NESTED_PARAMETERS_MARKDOWN
+    },
+    'converts sphinx signatures': {
+        'rst': SPHINX_SIGNATURE,
+        'md': SPHINX_SIGNATURE_MARKDOWN
     }
 }
 

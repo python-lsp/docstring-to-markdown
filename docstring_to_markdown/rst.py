@@ -6,10 +6,15 @@ import re
 
 
 class Directive:
-    def __init__(self, pattern: str, replacement: str, name: Union[str, None] = None):
+    def __init__(
+        self, pattern: str, replacement: str,
+        name: Union[str, None] = None,
+        flags: int = 0
+    ):
         self.pattern = pattern
         self.replacement = replacement
         self.name = name
+        self.flags = flags
 
 
 # https://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html#cross-referencing-python-objects
@@ -79,6 +84,15 @@ SPHINX_CROSS_REF_OTHER = (
     'term',
 )
 
+SPHINX_PARAM = (
+    'param',
+    'parameter',
+    'arg',
+    'argument',
+    'key',
+    'keyword'
+)
+
 SPHINX_RULES: List[Directive] = [
     Directive(
         pattern=r':c:({}):`\.?(?P<name>[^`]+?)`'.format('|'.join(SPHINX_CROSS_REF_C)),
@@ -109,13 +123,40 @@ SPHINX_RULES: List[Directive] = [
         replacement=r'`\g<name>`'
     ),
     Directive(
-        pattern=r'^:param (?P<param>\S+):',
-        replacement=r'- `\g<param>`:'
+        pattern=r'^\s*:({}) (?P<type>\S+) (?P<param>\S+):'.format('|'.join(SPHINX_PARAM)),
+        replacement=r'- `\g<param>` (`\g<type>`):',
+        flags=re.MULTILINE
     ),
     Directive(
-        pattern=r'^:return:',
-        replacement=r'Returns:'
-    )
+        pattern=r'^\s*:({}) (?P<param>\S+): (?P<desc>.*)(\n|\r\n?):type \2: (?P<type>.*)$'.format('|'.join(SPHINX_PARAM)),
+        replacement=r'- `\g<param>` (\g<type>): \g<desc>',
+        flags=re.MULTILINE
+    ),
+    Directive(
+        pattern=r'^\s*:({}) (?P<param>\S+):'.format('|'.join(SPHINX_PARAM)),
+        replacement=r'- `\g<param>`:',
+        flags=re.MULTILINE
+    ),
+    Directive(
+        pattern=r'^\s*:type (?P<param>\S+):',
+        replacement=r'  . Type: `\g<param>`:',
+        flags=re.MULTILINE
+    ),
+    Directive(
+        pattern=r'^\s*:(return|returns):',
+        replacement=r'- returns:',
+        flags=re.MULTILINE
+    ),
+    Directive(
+        pattern=r'^\s*:rtype: (?P<type>\S+)',
+        replacement=r'- return type: `\g<type>`',
+        flags=re.MULTILINE
+    ),
+    Directive(
+        pattern=r'^\s*:(raises|raise|except|exception) (?P<exception>\S+):',
+        replacement=r'- raises `\g<exception>`:',
+        flags=re.MULTILINE
+    ),
 ]
 
 
@@ -646,7 +687,7 @@ def rst_to_markdown(text: str) -> str:
         lines = '\n'.join(lines_buffer)
         # rst markup handling
         for directive in DIRECTIVES:
-            lines = re.sub(directive.pattern, directive.replacement, lines)
+            lines = re.sub(directive.pattern, directive.replacement, lines, flags=directive.flags)
 
         for (section, header) in RST_SECTIONS.items():
             lines = lines.replace(header, '\n#### ' + section + '\n')
