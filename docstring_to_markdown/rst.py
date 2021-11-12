@@ -99,10 +99,6 @@ SPHINX_RULES: List[Directive] = [
         replacement=r'`\g<name>`'
     ),
     Directive(
-        pattern=r':c:({}):`\.?(?P<name>[^`]+?)`'.format('|'.join(SPHINX_CROSS_REF_C)),
-        replacement=r'`\g<name>`'
-    ),
-    Directive(
         pattern=r':cpp:({}):`\.?(?P<name>[^`]+?)`'.format('|'.join(SPHINX_CROSS_REF_CPP)),
         replacement=r'`\g<name>`'
     ),
