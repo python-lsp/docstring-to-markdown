@@ -12,9 +12,100 @@ class Directive:
         self.name = name
 
 
+# https://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html#cross-referencing-python-objects
+SPHINX_CROSS_REF_PYTHON = (
+    'mod',
+    'func',
+    'data',
+    'const',
+    'class',
+    'meth',
+    'attr',
+    'exc',
+    'obj'
+)
+
+# https://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html#cross-referencing-c-constructs
+SPHINX_CROSS_REF_C = (
+    'member',
+    'data',
+    'func',
+    'macro',
+    'struct',
+    'union',
+    'enum',
+    'enumerator',
+    'type'
+)
+
+# https://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html#cross-referencing
+SPHINX_CROSS_REF_CPP = (
+    'any',
+    'class',
+    'struct',
+    'func',
+    'member',
+    'var',
+    'type',
+    'concept',
+    'enum',
+    'enumerator'
+)
+
+# https://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html#the-javascript-domain
+SPHINX_CROSS_REF_JS = (
+    'mod',
+    'func',
+    'meth',
+    'class',
+    'data',
+    'attr'
+)
+
+# https://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html#the-restructuredtext-domain
+SPHINX_CROSS_REF_RST = (
+    'dir',
+    'role'
+)
+
+# https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html
+SPHINX_CROSS_REF_OTHER = (
+    'any',
+    # https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#cross-referencing-other-items-of-interest
+    'envvar',
+    'token',
+    'keyword',
+    'option',
+    'term',
+)
+
 SPHINX_RULES: List[Directive] = [
     Directive(
-        pattern=r':(func|meth|class|obj|term):`\.?(?P<name>[^`]+?)`',
+        pattern=r':c:({}):`\.?(?P<name>[^`]+?)`'.format('|'.join(SPHINX_CROSS_REF_C)),
+        replacement=r'`\g<name>`'
+    ),
+    Directive(
+        pattern=r':c:({}):`\.?(?P<name>[^`]+?)`'.format('|'.join(SPHINX_CROSS_REF_C)),
+        replacement=r'`\g<name>`'
+    ),
+    Directive(
+        pattern=r':cpp:({}):`\.?(?P<name>[^`]+?)`'.format('|'.join(SPHINX_CROSS_REF_CPP)),
+        replacement=r'`\g<name>`'
+    ),
+    Directive(
+        pattern=r':js:({}):`\.?(?P<name>[^`]+?)`'.format('|'.join(SPHINX_CROSS_REF_JS)),
+        replacement=r'`\g<name>`'
+    ),
+    Directive(
+        pattern=r'(:py)?:({}):`\.?(?P<name>[^`]+?)`'.format('|'.join(SPHINX_CROSS_REF_PYTHON)),
+        replacement=r'`\g<name>`'
+    ),
+    Directive(
+        pattern=r'(:rst)?:({}):`\.?(?P<name>[^`]+?)`'.format('|'.join(SPHINX_CROSS_REF_RST)),
+        replacement=r'`\g<name>`'
+    ),
+    Directive(
+        pattern=r':({}):`\.?(?P<name>[^`]+?)`'.format('|'.join(SPHINX_CROSS_REF_OTHER)),
         replacement=r'`\g<name>`'
     ),
     Directive(

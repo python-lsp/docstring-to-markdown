@@ -715,9 +715,25 @@ RST_CASES = {
         'rst': REFERENCES,
         'md': REFERENCES_MARKDOWN
     },
-    'converts sphinx func, meth, and class': {
+    'converts sphinx cross-references to func, meth, class, etc.': {
         'rst': ':func:`function1`, :meth:`.Script.inline`, :class:`.Environment`',
         'md': '`function1`, `Script.inline`, `Environment`'
+    },
+    'converts sphinx cross-references in Python domain': {
+        'rst': ':py:func:`function1`, :py:meth:`.Script.inline`, :py:class:`.Environment`',
+        'md': '`function1`, `Script.inline`, `Environment`'
+    },
+    'converts sphinx cross-references in C domain': {
+        'rst': ':c:func:`function1`, :c:struct:`Data`',
+        'md': '`function1`, `Data`'
+    },
+    'converts sphinx cross-references in C++ domain': {
+        'rst': ':cpp:func:`function1`, :cpp:var:`data`',
+        'md': '`function1`, `data`'
+    },
+    'converts sphinx cross-references in JS domain': {
+        'rst': ':js:func:`function1`, :js:class:`Math`',
+        'md': '`function1`, `Math`'
     },
     'converts sphinx params': {
         'rst': ':param x: test arg',
