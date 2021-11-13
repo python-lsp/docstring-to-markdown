@@ -646,6 +646,19 @@ SPHINX_SIGNATURE_MARKDOWN = """\
 - raises `ValueError`: if the message_body exceeds 160 characters
 """
 
+SPHINX_NESTED = """\
+.. code-block:: python
+    def foo():
+        ''':param  str message_body: blah blah'''
+"""
+
+SPHINX_NESTED_MARKDOWN = """\
+```python
+def foo():
+    ''':param  str message_body: blah blah'''
+```
+"""
+
 RST_CASES = {
     'handles prompt continuation and multi-line output': {
         'rst': CODE_MULTI_LINE_CODE_OUTPUT,
@@ -788,6 +801,10 @@ RST_CASES = {
     'converts sphinx signatures': {
         'rst': SPHINX_SIGNATURE,
         'md': SPHINX_SIGNATURE_MARKDOWN
+    },
+    'keeps params intact in code blocks': {
+        'rst': SPHINX_NESTED,
+        'md': SPHINX_NESTED_MARKDOWN
     }
 }
 
