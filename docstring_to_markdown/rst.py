@@ -6,25 +6,153 @@ import re
 
 
 class Directive:
-    def __init__(self, pattern: str, replacement: str, name: Union[str, None] = None):
+    def __init__(
+        self, pattern: str, replacement: str,
+        name: Union[str, None] = None,
+        flags: int = 0
+    ):
         self.pattern = pattern
         self.replacement = replacement
         self.name = name
+        self.flags = flags
 
+
+# https://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html#cross-referencing-python-objects
+SPHINX_CROSS_REF_PYTHON = (
+    'mod',
+    'func',
+    'data',
+    'const',
+    'class',
+    'meth',
+    'attr',
+    'exc',
+    'obj'
+)
+
+# https://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html#cross-referencing-c-constructs
+SPHINX_CROSS_REF_C = (
+    'member',
+    'data',
+    'func',
+    'macro',
+    'struct',
+    'union',
+    'enum',
+    'enumerator',
+    'type'
+)
+
+# https://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html#cross-referencing
+SPHINX_CROSS_REF_CPP = (
+    'any',
+    'class',
+    'struct',
+    'func',
+    'member',
+    'var',
+    'type',
+    'concept',
+    'enum',
+    'enumerator'
+)
+
+# https://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html#the-javascript-domain
+SPHINX_CROSS_REF_JS = (
+    'mod',
+    'func',
+    'meth',
+    'class',
+    'data',
+    'attr'
+)
+
+# https://www.sphinx-doc.org/en/master/usage/restructuredtext/domains.html#the-restructuredtext-domain
+SPHINX_CROSS_REF_RST = (
+    'dir',
+    'role'
+)
+
+# https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html
+SPHINX_CROSS_REF_OTHER = (
+    'any',
+    # https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#cross-referencing-other-items-of-interest
+    'envvar',
+    'token',
+    'keyword',
+    'option',
+    'term',
+)
+
+SPHINX_PARAM = (
+    'param',
+    'parameter',
+    'arg',
+    'argument',
+    'key',
+    'keyword'
+)
 
 SPHINX_RULES: List[Directive] = [
     Directive(
-        pattern=r':(func|meth|class|obj|term):`\.?(?P<name>[^`]+?)`',
+        pattern=r':c:({}):`\.?(?P<name>[^`]+?)`'.format('|'.join(SPHINX_CROSS_REF_C)),
         replacement=r'`\g<name>`'
     ),
     Directive(
-        pattern=r'^:param (?P<param>\S+):',
-        replacement=r'- `\g<param>`:'
+        pattern=r':cpp:({}):`\.?(?P<name>[^`]+?)`'.format('|'.join(SPHINX_CROSS_REF_CPP)),
+        replacement=r'`\g<name>`'
     ),
     Directive(
-        pattern=r'^:return:',
-        replacement=r'Returns:'
-    )
+        pattern=r':js:({}):`\.?(?P<name>[^`]+?)`'.format('|'.join(SPHINX_CROSS_REF_JS)),
+        replacement=r'`\g<name>`'
+    ),
+    Directive(
+        pattern=r'(:py)?:({}):`\.?(?P<name>[^`]+?)`'.format('|'.join(SPHINX_CROSS_REF_PYTHON)),
+        replacement=r'`\g<name>`'
+    ),
+    Directive(
+        pattern=r'(:rst)?:({}):`\.?(?P<name>[^`]+?)`'.format('|'.join(SPHINX_CROSS_REF_RST)),
+        replacement=r'`\g<name>`'
+    ),
+    Directive(
+        pattern=r':({}):`\.?(?P<name>[^`]+?)`'.format('|'.join(SPHINX_CROSS_REF_OTHER)),
+        replacement=r'`\g<name>`'
+    ),
+    Directive(
+        pattern=r'^\s*:({}) (?P<type>\S+) (?P<param>\S+):'.format('|'.join(SPHINX_PARAM)),
+        replacement=r'- `\g<param>` (`\g<type>`):',
+        flags=re.MULTILINE
+    ),
+    Directive(
+        pattern=r'^\s*:({}) (?P<param>\S+): (?P<desc>.*)(\n|\r\n?):type \2: (?P<type>.*)$'.format('|'.join(SPHINX_PARAM)),
+        replacement=r'- `\g<param>` (\g<type>): \g<desc>',
+        flags=re.MULTILINE
+    ),
+    Directive(
+        pattern=r'^\s*:({}) (?P<param>\S+):'.format('|'.join(SPHINX_PARAM)),
+        replacement=r'- `\g<param>`:',
+        flags=re.MULTILINE
+    ),
+    Directive(
+        pattern=r'^\s*:type (?P<param>\S+):',
+        replacement=r'  . Type: `\g<param>`:',
+        flags=re.MULTILINE
+    ),
+    Directive(
+        pattern=r'^\s*:(return|returns):',
+        replacement=r'- returns:',
+        flags=re.MULTILINE
+    ),
+    Directive(
+        pattern=r'^\s*:rtype: (?P<type>\S+)',
+        replacement=r'- return type: `\g<type>`',
+        flags=re.MULTILINE
+    ),
+    Directive(
+        pattern=r'^\s*:(raises|raise|except|exception) (?P<exception>\S+):',
+        replacement=r'- raises `\g<exception>`:',
+        flags=re.MULTILINE
+    ),
 ]
 
 
@@ -555,7 +683,7 @@ def rst_to_markdown(text: str) -> str:
         lines = '\n'.join(lines_buffer)
         # rst markup handling
         for directive in DIRECTIVES:
-            lines = re.sub(directive.pattern, directive.replacement, lines)
+            lines = re.sub(directive.pattern, directive.replacement, lines, flags=directive.flags)
 
         for (section, header) in RST_SECTIONS.items():
             lines = lines.replace(header, '\n#### ' + section + '\n')
