@@ -471,6 +471,24 @@ SIMPLE_TABLE_MARKDOWN = """
 """
 
 
+SIMPLE_TABLE_WITH_MARKUP = """
+============================== =======================================
+Scalar Type                    Array Type
+============================== =======================================
+:class:`pandas.Interval`       :class:`pandas.arrays.IntervalArray`
+:class:`bool`                  :class:`pandas.arrays.BooleanArray`
+============================== =======================================
+"""
+
+
+SIMPLE_TABLE_WITH_MARKUP_MARKDOWN = """
+|    Scalar Type    |           Array Type          |
+| ----------------- | ----------------------------- |
+| `pandas.Interval` | `pandas.arrays.IntervalArray` |
+| `bool`            | `pandas.arrays.BooleanArray`  |
+"""
+
+
 SIMPLE_TABLE_2 = """
 .. warning:: This is a standard simple table
 
@@ -781,6 +799,10 @@ RST_CASES = {
     'converts non-standard simple table': {
         'rst': SIMPLE_TABLE,
         'md': SIMPLE_TABLE_MARKDOWN
+    },
+    'converts syntax within table': {
+        'rst': SIMPLE_TABLE_WITH_MARKUP,
+        'md': SIMPLE_TABLE_WITH_MARKUP_MARKDOWN
     },
     'converts standard simple table': {
         'rst': SIMPLE_TABLE_2,
