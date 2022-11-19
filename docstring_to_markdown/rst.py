@@ -156,6 +156,75 @@ SPHINX_RULES: List[Directive] = [
 ]
 
 
+class Admonition:
+    def __init__(self, name: str, label: str, icon: str = ''):
+        self.name = name
+        self.label = label
+        self.icon = icon
+
+    @property
+    def block_markdown(self):
+        return f'{self.icon} **{self.label}**'
+
+    @property
+    def inline_markdown(self):
+        return self.block_markdown + ':'
+
+
+ADMONITIONS = [
+    Admonition(
+        name='caution',
+        label='Caution',
+        icon='⚠️ '
+    ),
+    Admonition(
+        name='attention',
+        label='Attention',
+        icon='⚠️ '
+    ),
+    Admonition(
+        name='danger',
+        label='Danger',
+        icon='⚠️ '
+    ),
+    Admonition(
+        name='hint',
+        label='Hint',
+        icon='🛈'
+    ),
+    Admonition(
+        name='important',
+        label='Important',
+        icon='⚠️ '
+    ),
+    Admonition(
+        name='note',
+        label='Note',
+        icon='🛈'
+    ),
+    Admonition(
+        name='tip',
+        label='Tip',
+        icon='🛈'
+    ),
+    Admonition(
+        name='warning',
+        label='Warning',
+        icon='⚠️ '
+    )
+]
+
+
+ADMONITION_DIRECTIVES: List[Directive] = [
+    # https://docutils.sourceforge.io/docs/ref/rst/directives.html#admonitions
+    Directive(
+        pattern=rf'\.\. {admonition.name}::',
+        replacement=admonition.inline_markdown
+    )
+    for admonition in ADMONITIONS
+]
+
+
 RST_DIRECTIVES: List[Directive] = [
     Directive(
         pattern=r'\.\. versionchanged:: (?P<version>\S+)(?P<end>$|\n)',
@@ -169,10 +238,7 @@ RST_DIRECTIVES: List[Directive] = [
         pattern=r'\.\. deprecated:: (?P<version>\S+)(?P<end>$|\n)',
         replacement=r'*Deprecated since \g<version>*\g<end>'
     ),
-    Directive(
-        pattern=r'\.\. warning::',
-        replacement=r'**Warning**:'
-    ),
+    *ADMONITION_DIRECTIVES,
     Directive(
         pattern=r'\.\. seealso::(?P<short_form>.*)(?P<end>$|\n)',
         replacement=r'*See also*\g<short_form>\g<end>'
@@ -604,13 +670,17 @@ class MathBlockParser(IndentedBlockParser):
 
 class NoteBlockParser(IndentedBlockParser):
     enclosure = '\n---'
-    directives = {'.. note::', '.. warning::'}
+    directives = {
+        f'.. {admonition.name}::': admonition
+        for admonition in ADMONITIONS
+    }
 
     def can_parse(self, line: str):
         return line.strip() in self.directives
 
     def initiate_parsing(self, line: str, current_language: str):
-        self._start_block('\n**Note**\n' if 'note' in line else '\n**Warning**\n')
+        admonition = self.directives[line.strip()]
+        self._start_block(f'\n{admonition.block_markdown}\n')
         return IBlockBeginning(remainder='')
 
 
