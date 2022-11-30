@@ -243,7 +243,7 @@ operations and methods.
 
 
 ---
-**Note**
+🛈 **Note**
 
 The `chararray` class exists for backwards compatibility with
 Numarray, it is not recommended for new development.
@@ -399,7 +399,7 @@ Load pickled object from file.
 
 
 ---
-**Warning**
+⚠️  **Warning**
 
 Loading pickled data received from untrusted sources can be
 unsafe.
@@ -421,7 +421,7 @@ Parameters
 LINE_WARNING_MARKDOWN = """
 Create a view into the array with the given shape and strides.
 
-**Warning**: This function has to be used with extreme care, see notes.
+⚠️  **Warning**: This function has to be used with extreme care, see notes.
 
 Parameters
 """
@@ -462,7 +462,7 @@ Character Meaning
 """
 
 SIMPLE_TABLE_MARKDOWN = """
-**Warning**: This is not a standard simple table
+⚠️  **Warning**: This is not a standard simple table
 
 | Character |                             Meaning                             |
 | --------- | --------------------------------------------------------------- |
@@ -501,7 +501,7 @@ True   False  False
 """
 
 SIMPLE_TABLE_2_MARKDOWN = """
-**Warning**: This is a standard simple table
+⚠️  **Warning**: This is a standard simple table
 
 |   A   |   B   | A and B |
 | ----- | ----- | ------- |
