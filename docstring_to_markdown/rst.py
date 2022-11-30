@@ -402,6 +402,7 @@ class TableParser(IParser):
                 self._columns_end
             )
             fragment = line[start:end].strip()
+            fragment = rst_to_markdown(fragment, extract_signature=False)
             self._max_sizes[i] = max(self._max_sizes[i], len(fragment))
             fragments.append(fragment)
         return fragments
@@ -647,7 +648,7 @@ DIRECTIVES = [
 ]
 
 
-def rst_to_markdown(text: str) -> str:
+def rst_to_markdown(text: str, extract_signature: bool = True) -> str:
     """
     Try to parse docstrings in following formats to markdown:
     - https://www.python.org/dev/peps/pep-0287/
@@ -693,10 +694,12 @@ def rst_to_markdown(text: str) -> str:
 
     for line in text.split('\n'):
         if is_first_line:
-            signature_match = re.match(r'^(?P<name>\S+)\((?P<params>.*)\)$', line)
-            if signature_match and signature_match.group('name').isidentifier():
-                markdown += '```python\n' + line + '\n```\n'
-                continue
+            if extract_signature:
+                signature_match = re.match(r'^(?P<name>\S+)\((?P<params>.*)\)$', line)
+                if signature_match and signature_match.group('name').isidentifier():
+                    markdown += '```python\n' + line + '\n```\n'
+                    continue
+            is_first_line = False
 
         trimmed_line = line.lstrip()
 
