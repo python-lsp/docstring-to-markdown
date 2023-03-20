@@ -339,7 +339,7 @@ def looks_like_rst(value: str) -> bool:
         if (section + '\n' + '-' * len(section) + '\n') in value:
             return True
     for directive in RST_DIRECTIVES:
-        if re.search(directive.pattern, value):
+        if re.search(directive.pattern, value, directive.flags):
             return True
     # allow "text::" or "text ::" but not "^::$" or "^:::$"
     return bool(re.search(r'(\s|\w)::\n', value) or '\n>>> ' in value)
