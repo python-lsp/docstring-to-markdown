@@ -837,6 +837,7 @@ def test_looks_like_rst_recognises_rst():
     assert looks_like_rst('the following code::\n\n\tcode')
     assert looks_like_rst('See Also\n--------\n')
     assert looks_like_rst('.. versionadded:: 0.1')
+    assert looks_like_rst('Description.\n\n:param spam: eggs.\n')
 
 
 def test_looks_like_rst_ignores_plain_text():
