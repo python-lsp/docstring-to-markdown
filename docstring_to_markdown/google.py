@@ -2,7 +2,8 @@ import re
 from textwrap import dedent
 from typing import Dict, List, Union
 
-_GOOGLE_SECTIONS: List[str] = [
+# All possible sections in Google style docstrings
+SECTION_HEADERS: List[str] = [
     "Args",
     "Returns",
     "Raises",
@@ -10,6 +11,14 @@ _GOOGLE_SECTIONS: List[str] = [
     "Example",
     "Examples",
     "Attributes",
+    "Note",
+    "Todo",
+]
+
+# These sections will not be parsed as a list of arguments/return values/etc
+PLAIN_TEXT_SECTIONS: List[str] = [
+    "Examples",
+    "Example",
     "Note",
     "Todo",
 ]
@@ -29,6 +38,10 @@ class Section:
 
     def _parse(self, content: str) -> None:
         content = content.rstrip("\n")
+
+        if self.name in PLAIN_TEXT_SECTIONS:
+            self.content = dedent(content)
+            return
 
         parts = []
         cur_part = []
@@ -125,7 +138,7 @@ class GoogleDocstring:
 
 
 def is_section(line: str) -> bool:
-    for section in _GOOGLE_SECTIONS:
+    for section in SECTION_HEADERS:
         if re.search(r"{}:".format(section), line):
             return True
 
@@ -133,7 +146,7 @@ def is_section(line: str) -> bool:
 
 
 def looks_like_google(value: str) -> bool:
-    for section in _GOOGLE_SECTIONS:
+    for section in SECTION_HEADERS:
         if re.search(r"{}:\n".format(section), value):
             return True
 
