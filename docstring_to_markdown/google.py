@@ -1,4 +1,5 @@
 import re
+from textwrap import dedent
 from typing import Dict, List, Union
 
 _GOOGLE_SECTIONS: List[str] = [
@@ -10,6 +11,7 @@ _GOOGLE_SECTIONS: List[str] = [
     "Examples",
     "Attributes",
     "Note",
+    "Todo",
 ]
 
 ESCAPE_RULES = {
@@ -52,18 +54,21 @@ class Section:
 
         # Format section
         for part in parts:
+            indentation = ""
+
             if ":" in part[0]:
                 spl = part[0].split(":")
 
                 arg = spl[0]
-                description = ":".join(spl[1:])
+                description = ":".join(spl[1:]).lstrip()
+                indentation = (len(arg) + 6) * " "
 
                 self.content += "- `{}`: {}\n".format(arg, description)
             else:
                 self.content += "- {}\n".format(part[0])
 
             for line in part[1:]:
-                self.content += "  {}\n".format(line)
+                self.content += "{}{}\n".format(indentation, line.lstrip())
 
         self.content = self.content.rstrip("\n")
 
