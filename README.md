@@ -7,15 +7,14 @@
 On the fly conversion of Python docstrings to markdown
 
 - Python 3.6+
-- currently can recognise reStructuredText and convert multiple of its features to Markdown
-- in the future will be able to convert Google docstrings too
+- can recognise reStructuredText and convert multiple of its features to Markdown
+- since v0.13 includes initial support for Google-formatted docstrings
 
 ### Installation
 
 ```bash
 pip install docstring-to-markdown
 ```
-
 
 ### Example
 
