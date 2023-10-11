@@ -102,7 +102,7 @@ class Section:
 
 class GoogleDocstring:
     def __init__(self, docstring: str) -> None:
-        self.sections: list[Section] = []
+        self.sections: List[Section] = []
         self.description: str = ""
 
         self._parse(docstring)
