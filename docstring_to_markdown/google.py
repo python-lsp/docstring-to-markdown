@@ -88,8 +88,6 @@ class Section:
     def as_markdown(self) -> str:
         return "#### {}\n\n{}\n\n".format(self.name, self.content)
 
-    def __repr__(self) -> str:
-        return "Section(name={}, content={})".format(self.name, self.content)
 
 
 class GoogleDocstring:
