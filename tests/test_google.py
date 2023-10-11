@@ -75,6 +75,9 @@ Args:
              spanning over several lines
         also with broken indentation
     b (str): Second arg
+    c (str):
+        On the next line
+        And also multiple lines
 """
 
 MULTILINE_ARG_DESCRIPTION_MD = """Example.
@@ -85,6 +88,8 @@ MULTILINE_ARG_DESCRIPTION_MD = """Example.
              spanning over several lines
              also with broken indentation
 - `b (str)`: Second arg
+- `c (str)`: On the next line
+             And also multiple lines
 """
 
 GOOGLE_CASES = {

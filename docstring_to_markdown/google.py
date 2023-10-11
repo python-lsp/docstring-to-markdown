@@ -1,6 +1,6 @@
 import re
 from textwrap import dedent
-from typing import Dict, List, Union
+from typing import List
 
 # All possible sections in Google style docstrings
 SECTION_HEADERS: List[str] = [
@@ -68,6 +68,7 @@ class Section:
         # Format section
         for part in parts:
             indentation = ""
+            skip_first = False
 
             if ":" in part[0]:
                 spl = part[0].split(":")
@@ -76,18 +77,27 @@ class Section:
                 description = ":".join(spl[1:]).lstrip()
                 indentation = (len(arg) + 6) * " "
 
-                self.content += "- `{}`: {}\n".format(arg, description)
+                if description:
+                    self.content += "- `{}`: {}\n".format(arg, description)
+                else:
+                    skip_first = True
+                    self.content += "- `{}`: ".format(arg)
             else:
                 self.content += "- {}\n".format(part[0])
 
-            for line in part[1:]:
+            for n, line in enumerate(part[1:]):
+                if skip_first and n == 0:
+                    # This ensures that indented args get moved to the
+                    # previous line
+                    self.content += "{}\n".format(line.lstrip())
+                    continue
+
                 self.content += "{}{}\n".format(indentation, line.lstrip())
 
         self.content = self.content.rstrip("\n")
 
     def as_markdown(self) -> str:
         return "#### {}\n\n{}\n\n".format(self.name, self.content)
-
 
 
 class GoogleDocstring:
