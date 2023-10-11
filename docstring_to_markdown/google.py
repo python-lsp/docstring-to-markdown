@@ -52,7 +52,15 @@ class Section:
 
         # Format section
         for part in parts:
-            self.content += "- {}\n".format(part[0])
+            if ":" in part[0]:
+                spl = part[0].split(":")
+
+                arg = spl[0]
+                description = ":".join(spl[1:])
+
+                self.content += "- `{}`: {}\n".format(arg, description)
+            else:
+                self.content += "- {}\n".format(part[0])
 
             for line in part[1:]:
                 self.content += "  {}\n".format(line)
@@ -60,7 +68,7 @@ class Section:
         self.content = self.content.rstrip("\n")
 
     def as_markdown(self) -> str:
-        return "# {}\n\n{}\n\n".format(self.name, self.content)
+        return "#### {}\n\n{}\n\n".format(self.name, self.content)
 
     def __repr__(self) -> str:
         return "Section(name={}, content={})".format(self.name, self.content)
