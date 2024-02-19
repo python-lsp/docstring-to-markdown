@@ -3,7 +3,7 @@ from .google import google_to_markdown, looks_like_google
 from .plain import looks_like_plain_text, plain_text_to_markdown
 from .rst import looks_like_rst, rst_to_markdown
 
-__version__ = "0.13"
+__version__ = "0.14"
 
 
 class UnknownFormatError(Exception):
