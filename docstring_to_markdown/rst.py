@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 from enum import IntEnum, auto
 from types import SimpleNamespace
-from typing import Union, List, Dict
+from typing import Callable, Match, Union, List, Dict
 import re
 
 
 class Directive:
     def __init__(
-        self, pattern: str, replacement: str,
+        self, pattern: str, replacement: Union[str, Callable[[Match], str]],
         name: Union[str, None] = None,
         flags: int = 0
     ):
@@ -249,7 +249,7 @@ RST_DIRECTIVES: List[Directive] = [
     ),
     Directive(
         pattern=r'`(?P<label>[^<`]+?)(\n?)<(?P<url>[^>`]+)>`_+',
-        replacement=r'[\g<label>](\g<url>)'
+        replacement=lambda m: '[' + m.group('label') + '](' + re.sub(r"\s+", "", m.group('url')) + ')'
     ),
     Directive(
         pattern=r':mod:`(?P<label>[^`]+)`',
@@ -316,7 +316,7 @@ SECTION_DIRECTIVES: Dict[str, List[Directive]] = {
 
 ESCAPING_RULES: List[Directive] = [
     Directive(
-        pattern=r'__(?P<text>\S+)__',
+        pattern=r'(?<!`)__(?P<text>\S+)__(?!`)',
         replacement=r'\_\_\g<text>\_\_'
     )
 ]
