@@ -4,6 +4,8 @@ from types import SimpleNamespace
 from typing import Callable, Match, Union, List, Dict
 import re
 
+from .types import Converter
+
 
 class Directive:
     def __init__(
@@ -532,7 +534,7 @@ class GridTableParser(TableParser):
                 self._rows.append(self._split(line))
             self._expecting_row_content = not self._expecting_row_content
         else:
-            self._state += 1
+            self._state += 1    # pragma: no cover
 
 
 class BlockParser(IParser):
@@ -651,11 +653,13 @@ class DoubleColonBlockParser(IndentedBlockParser):
         if line.strip() == '.. autosummary::':
             language = ''
             line = ''
+            suffix = ''
         else:
             line = re.sub(r'::$', '', line)
+            suffix = '\n\n'
 
         self._start_block(language)
-        return IBlockBeginning(remainder=line.rstrip() + '\n\n')
+        return IBlockBeginning(remainder=line.rstrip() + suffix)
 
 
 class MathBlockParser(IndentedBlockParser):
@@ -825,3 +829,14 @@ def rst_to_markdown(text: str, extract_signature: bool = True) -> str:
     if active_parser:
         markdown += active_parser.finish_consumption(True)
     return markdown
+
+
+class ReStructuredTextConverter(Converter):
+
+    priority = 100
+
+    def can_convert(self, docstring):
+        return looks_like_rst(docstring)
+
+    def convert(self, docstring):
+        return rst_to_markdown(docstring)
