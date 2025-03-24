@@ -6,7 +6,7 @@
 
 On the fly conversion of Python docstrings to markdown
 
-- Python 3.6+ (tested on 3.7 up to 3.11)
+- Python 3.6+ (tested on 3.8 up to 3.13)
 - can recognise reStructuredText and convert multiple of its features to Markdown
 - since v0.13 includes initial support for Google-formatted docstrings
 
