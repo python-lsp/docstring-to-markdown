@@ -1,4 +1,5 @@
 from re import fullmatch
+from .types import Converter
 from ._utils import escape_markdown
 
 
@@ -24,4 +25,16 @@ def looks_like_plain_text(value: str) -> bool:
 def plain_text_to_markdown(text: str) -> str:
     return escape_markdown(text)
 
-__all__ = ['looks_like_plain_text', 'plain_text_to_markdown']
+
+class PlainTextConverter(Converter):
+
+    priority = 50
+
+    def can_convert(self, docstring):
+        return looks_like_plain_text(docstring)
+
+    def convert(self, docstring):
+        return plain_text_to_markdown(docstring)
+
+
+__all__ = ['looks_like_plain_text', 'plain_text_to_markdown', 'PlainTextConverter']

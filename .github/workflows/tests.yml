@@ -35,6 +35,6 @@ jobs:
       run: |
         python -m build
     - name: Install package
-      run: python -m pip install --find-links=dist --no-index --ignore-installed docstring_to_markdown
+      run: python -m pip install --find-links=dist --ignore-installed docstring_to_markdown
     - name: Pip check
       run: python -m pip check

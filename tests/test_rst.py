@@ -1,6 +1,6 @@
 import pytest
 
-from docstring_to_markdown.rst import looks_like_rst, rst_to_markdown
+from docstring_to_markdown.rst import looks_like_rst, rst_to_markdown, ReStructuredTextConverter
 
 
 SEE_ALSO = """
@@ -118,6 +118,26 @@ funcname: `identifier`
 
 A function definition is an executable statement.
 """
+
+RST_AUTOSUMMARY_BLOCK = """
+Summary
+
+.. autosummary::
+
+   environment.BuildEnvironment
+   util.relative_uri
+"""
+
+
+RST_AUTOSUMMARY_BLOCK_MARKDOWN = """
+Summary
+
+```
+environment.BuildEnvironment
+util.relative_uri
+```
+"""
+
 
 RST_COLON_CODE_BLOCK = """
 For example, the following code ::
@@ -598,6 +618,26 @@ GRID_TABLE_IN_SKLEARN_MARKDOWN = """
 """
 
 
+BROKEN_GRID_TABLE = """
++------------+-----------+------------+-----------------+---+---------+
+|param_kernel|param_gamma|param_degree|split0_test_score|...|rank_t...|
++============+===========+============+=================+===+=========+
+|  'poly'    |     --    |      2     |       0.80      |...|    2    |
++------------+-----------+------------+-----------------+---+---------+
+|  'poly'    |     --    |      3     |       0.70      |...|    4    |
+someone forgot to close the row above.
+"""
+
+
+BROKEN_GRID_TABLE_MARKDOWN = """
+| param_kernel | param_gamma | param_degree | split0_test_score | ... | rank_t... |
+| ------------ | ----------- | ------------ | ----------------- | --- | --------- |
+| 'poly'       | --          | 2            | 0.80              | ... | 2         |
+| 'poly'       | --          | 3            | 0.70              | ... | 4         |
+someone forgot to close the row above.
+"""
+
+
 NESTED_PARAMETERS = """
 Parameters
 ----------
@@ -733,6 +773,10 @@ RST_CASES = {
         'rst': NUMPY_EXAMPLE,
         'md': NUMPY_EXAMPLE_MARKDOWN
     },
+    'converts autosummary block': {
+        'rst': RST_AUTOSUMMARY_BLOCK,
+        'md': RST_AUTOSUMMARY_BLOCK_MARKDOWN
+    },
     'converts version changed': {
         'rst': '.. versionchanged:: 0.23.0',
         'md': '*Changed in 0.23.0*'
@@ -835,6 +879,10 @@ RST_CASES = {
         'rst': GRID_TABLE_IN_SKLEARN,
         'md': GRID_TABLE_IN_SKLEARN_MARKDOWN
     },
+    'converts broken grid table': {
+        'rst': BROKEN_GRID_TABLE,
+        'md': BROKEN_GRID_TABLE_MARKDOWN
+    },
     'converts nested parameter lists': {
         'rst': NESTED_PARAMETERS,
         'md': NESTED_PARAMETERS_MARKDOWN
@@ -888,3 +936,10 @@ def test_rst_to_markdown(rst, markdown):
     converted = rst_to_markdown(rst)
     print(converted)
     assert converted == markdown
+
+
+def test_converter():
+    converter = ReStructuredTextConverter()
+    assert converter.can_convert('.. versionadded:: 0.1')
+    assert not converter.can_convert('this is plain text')
+    assert converter.convert(PEP_287_CODE_BLOCK) == PEP_287_CODE_BLOCK_MARKDOWN

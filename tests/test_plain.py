@@ -1,5 +1,5 @@
 import pytest
-from docstring_to_markdown.plain import looks_like_plain_text, plain_text_to_markdown
+from docstring_to_markdown.plain import looks_like_plain_text, plain_text_to_markdown, PlainTextConverter
 
 
 @pytest.mark.parametrize("text", [
@@ -40,3 +40,10 @@ def test_rejects_code(text):
 
 def test_conversion():
     assert plain_text_to_markdown("test") == "test"
+
+
+def test_convert():
+    converter = PlainTextConverter()
+    assert not converter.can_convert('def test():')
+    assert converter.can_convert('this is plain text')
+    assert converter.convert('test') == 'test'

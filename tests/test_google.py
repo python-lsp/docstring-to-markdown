@@ -1,6 +1,6 @@
 import pytest
 
-from docstring_to_markdown.google import google_to_markdown, looks_like_google
+from docstring_to_markdown.google import google_to_markdown, looks_like_google, GoogleConverter
 
 BASIC_EXAMPLE = """Do **something**.
 
@@ -133,3 +133,10 @@ def test_looks_like_google_ignores_plain_text():
 )
 def test_google_to_markdown(google, markdown):
     assert google_to_markdown(google) == markdown
+
+
+def test_converter():
+    converter = GoogleConverter()
+    assert converter.can_convert(BASIC_EXAMPLE)
+    assert not converter.can_convert("This is plain text")
+    assert converter.convert(BASIC_EXAMPLE) == BASIC_EXAMPLE_MD

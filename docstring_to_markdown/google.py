@@ -2,6 +2,9 @@ import re
 from textwrap import dedent
 from typing import List
 
+from .types import Converter
+
+
 # All possible sections in Google style docstrings
 SECTION_HEADERS: List[str] = [
     "Args",
@@ -169,3 +172,14 @@ def google_to_markdown(text: str, extract_signature: bool = True) -> str:
     docstring = GoogleDocstring(text)
 
     return docstring.as_markdown()
+
+
+class GoogleConverter(Converter):
+
+    priority = 75
+
+    def can_convert(self, docstring):
+        return looks_like_google(docstring)
+
+    def convert(self, docstring):
+        return google_to_markdown(docstring)

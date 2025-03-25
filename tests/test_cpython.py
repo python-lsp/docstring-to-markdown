@@ -1,5 +1,5 @@
 import pytest
-from docstring_to_markdown.cpython import looks_like_cpython, cpython_to_markdown
+from docstring_to_markdown.cpython import looks_like_cpython, cpython_to_markdown, CPythonConverter
 
 BOOL = """\
 bool(x) -> bool
@@ -101,3 +101,10 @@ def test_conversion_bool():
 
 def test_conversion_str():
     assert cpython_to_markdown(STR) == STR_MD
+
+
+def test_convert():
+    converter = CPythonConverter()
+    assert converter.can_convert(BOOL)
+    assert not converter.can_convert('this is plain text')
+    assert converter.convert(BOOL) == BOOL_MD
