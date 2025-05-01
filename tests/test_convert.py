@@ -75,7 +75,7 @@ class HighPriorityConverter(Converter):
 
 class MockEntryPoint(EntryPoint):
     def load(self):
-        return getattr(globals(), self.attr)
+        return globals()[self.attr]
 
     dist = None
 
