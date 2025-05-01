@@ -75,7 +75,7 @@ class HighPriorityConverter(Converter):
 
 class MockEntryPoint(EntryPoint):
     def load(self):
-        return self.value
+        return globals()[self.attr]
 
     dist = None
 
@@ -111,7 +111,7 @@ def test_adding_entry_point():
     mock_entry_point = MockEntryPoint(
         name='high-priority-converter',
         group='docstring_to_markdown',
-        value=HighPriorityConverter,
+        value="here:HighPriorityConverter",
     )
     with custom_entry_points([*original_entry_points, mock_entry_point]):
         assert convert('test') == 'HighPriority'
@@ -123,7 +123,7 @@ def test_replacing_entry_point():
     mock_entry_point = DistMockEntryPoint(
         name='cpython',
         group='docstring_to_markdown',
-        value=CustomCPythonConverter
+        value="here:CustomCPythonConverter",
     )
     with custom_entry_points([*original_entry_points, mock_entry_point]):
         assert convert('test') == 'test'
