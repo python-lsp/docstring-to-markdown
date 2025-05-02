@@ -6,7 +6,7 @@ from .types import Converter
 if TYPE_CHECKING:
     from importlib_metadata import EntryPoint
 
-__version__ = "0.16"
+__version__ = "0.17"
 
 
 class UnknownFormatError(Exception):
