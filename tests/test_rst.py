@@ -337,7 +337,7 @@ KWARGS_PARAMETERS_MARKDOWN = """
 
 - `x`: array_like
     Input array.
-- `**kwargs`
+- `**kwargs`:
     For other keyword-only arguments, see the ufunc docs.
 """
 
@@ -638,6 +638,119 @@ someone forgot to close the row above.
 """
 
 
+# this format is often used by polars
+PARAMETERS_WITHOUT_TYPE = """
+Parameters
+----------
+source
+    Path(s) to a file or directory
+    When needing to authenticate for scanning cloud locations, see the
+    `storage_options` parameter.
+columns
+    Columns to select. Accepts a list of column indices (starting at zero) or a list
+    of column names.
+n_rows
+    Stop reading from parquet file after reading `n_rows`.
+    Only valid when `use_pyarrow=False`.
+
+Returns
+-------
+DataFrame
+"""
+
+PARAMETERS_WITHOUT_TYPE_MARKDOWN = """
+#### Parameters
+
+- `source`:
+    Path(s) to a file or directory
+    When needing to authenticate for scanning cloud locations, see the
+    `storage_options` parameter.
+- `columns`:
+    Columns to select. Accepts a list of column indices (starting at zero) or a list
+    of column names.
+- `n_rows`:
+    Stop reading from parquet file after reading `n_rows`.
+    Only valid when `use_pyarrow=False`.
+
+#### Returns
+
+DataFrame
+"""
+
+INDENTED_DOCSTRING = """
+    Parameters
+    ----------
+    glob
+        Expand path given via globbing rules.
+"""
+
+INDENTED_DOCSTRING_MARKDOWN = """
+#### Parameters
+
+- `glob`:
+    Expand path given via globbing rules.
+"""
+
+
+WARNINGS_IN_PARAMETERS = """
+Parameters
+----------
+glob
+    Expand path given via globbing rules.
+schema
+    Specify the datatypes of the columns. The datatypes must match the
+    datatypes in the file(s). If there are extra columns that are not in the
+    file(s), consider also enabling `allow_missing_columns`.
+
+    .. warning::
+        This functionality is considered **unstable**. It may be changed
+        at any point without it being considered a breaking change.
+hive_schema
+    The column names and data types of the columns by which the data is partitioned.
+    If set to `None` (default), the schema of the Hive partitions is inferred.
+
+    .. warning::
+        This functionality is considered **unstable**. It may be changed
+        at any point without it being considered a breaking change.
+try_parse_hive_dates
+    Whether to try parsing hive values as date/datetime types.
+"""
+
+
+WARNINGS_IN_PARAMETERS_MARKDOWN = """
+#### Parameters
+
+- `glob`:
+    Expand path given via globbing rules.
+- `schema`:
+    Specify the datatypes of the columns. The datatypes must match the
+    datatypes in the file(s). If there are extra columns that are not in the
+    file(s), consider also enabling `allow_missing_columns`.
+
+
+    ---
+    ⚠️  **Warning**
+
+    This functionality is considered **unstable**. It may be changed
+    at any point without it being considered a breaking change.
+
+    ---
+- `hive_schema`:
+    The column names and data types of the columns by which the data is partitioned.
+    If set to `None` (default), the schema of the Hive partitions is inferred.
+
+
+    ---
+    ⚠️  **Warning**
+
+    This functionality is considered **unstable**. It may be changed
+    at any point without it being considered a breaking change.
+
+    ---
+- `try_parse_hive_dates`:
+    Whether to try parsing hive values as date/datetime types.
+"""
+
 NESTED_PARAMETERS = """
 Parameters
 ----------
@@ -886,6 +999,18 @@ RST_CASES = {
     'converts nested parameter lists': {
         'rst': NESTED_PARAMETERS,
         'md': NESTED_PARAMETERS_MARKDOWN
+    },
+    'converts parameter without type': {
+        'rst': PARAMETERS_WITHOUT_TYPE,
+        'md': PARAMETERS_WITHOUT_TYPE_MARKDOWN
+    },
+    'converts indented parameters lists': {
+        'rst': INDENTED_DOCSTRING,
+        'md': INDENTED_DOCSTRING_MARKDOWN
+    },
+    'converts warnings in parameters lists': {
+        'rst': WARNINGS_IN_PARAMETERS,
+        'md': WARNINGS_IN_PARAMETERS_MARKDOWN
     },
     'converts sphinx signatures': {
         'rst': SPHINX_SIGNATURE,

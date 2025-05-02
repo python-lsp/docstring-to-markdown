@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from enum import IntEnum, auto
+from textwrap import dedent
 from types import SimpleNamespace
 from typing import Callable, Match, Union, List, Dict
 import re
@@ -299,8 +300,8 @@ _RST_SECTIONS = {
 SECTION_DIRECTIVES: Dict[str, List[Directive]] = {
     'Parameters': [
         Directive(
-            pattern=r'^(?P<other_args>\*\*kwargs|\*args)$',
-            replacement=r'- `\g<other_args>`'
+            pattern=r'^(?P<other_args>(\w[\w\d_\.]*)|\*\*kwargs|\*args)$',
+            replacement=r'- `\g<other_args>`:'
         ),
         Directive(
             pattern=r'^(?P<arg1>[^:\s]+\d), (?P<arg2>[^:\s]+\d), \.\.\. : (?P<type>.+)$',
@@ -336,6 +337,7 @@ CODE_BLOCK_PATTERN = _find_directive_pattern('code-block')
 
 
 def looks_like_rst(value: str) -> bool:
+    value = dedent(value)
     # check if any of the characteristic sections (and the properly formatted underline) is there
     for section in _RST_SECTIONS:
         if (section + '\n' + '-' * len(section) + '\n') in value:
@@ -542,10 +544,20 @@ class BlockParser(IParser):
     follower: Union['IParser', None] = None
     _buffer: List[str]
     _block_started: bool
+    _indent: Union[int, None]
+    should_measure_indent = True
 
     def __init__(self):
         self._buffer = []
         self._block_started = False
+        self._indent = None
+
+    def measure_indent(self, line: str):
+        line_indent = len(line) - len(line.lstrip())
+        if self._indent is None:
+            self._indent = line_indent
+        else:
+            self._indent = min(line_indent, self._indent)
 
     @abstractmethod
     def can_parse(self, line: str) -> bool:
@@ -558,6 +570,8 @@ class BlockParser(IParser):
     def consume(self, line: str):
         if not self._block_started:
             raise ValueError('Block has not started')   # pragma: no cover
+        if self.should_measure_indent:
+            self.measure_indent(line)
         self._buffer.append(line)
 
     def finish_consumption(self, final: bool) -> str:
@@ -565,17 +579,24 @@ class BlockParser(IParser):
         if self._buffer[len(self._buffer) - 1].strip() == '':
             self._buffer.pop()
         self._buffer.append(self.enclosure + '\n')
-        result = '\n'.join(self._buffer)
+        indent = " " * (self._indent or 0)
+        intermediate = '\n'.join(self._buffer)
+        result = '\n'.join([
+            (indent + line) if line else line
+            for line in intermediate.splitlines()
+        ]) if indent else intermediate
         if not final:
             result += '\n'
         self._buffer = []
         self._block_started = False
+        self._indent = None
         return result
 
 
 class IndentedBlockParser(BlockParser, ABC):
     _is_block_beginning: bool
     _block_indent_size: Union[int, None]
+    should_measure_indent = False
 
     def __init__(self):
         super(IndentedBlockParser, self).__init__()
@@ -599,6 +620,7 @@ class IndentedBlockParser(BlockParser, ABC):
                 return
         if self._block_indent_size is None:
             self._block_indent_size = len(line) - len(line.lstrip())
+        self.measure_indent(line)
         super().consume(line[self._block_indent_size:])
 
     def finish_consumption(self, final: bool) -> str:
@@ -684,6 +706,7 @@ class NoteBlockParser(IndentedBlockParser):
         return line.strip() in self.directives
 
     def initiate_parsing(self, line: str, current_language: str):
+        self.measure_indent(line)
         admonition = self.directives[line.strip()]
         self._start_block(f'\n{admonition.block_markdown}\n')
         return IBlockBeginning(remainder='')
@@ -694,6 +717,7 @@ class ExplicitCodeBlockParser(IndentedBlockParser):
         return re.match(CODE_BLOCK_PATTERN, line) is not None
 
     def initiate_parsing(self, line: str, current_language: str) -> IBlockBeginning:
+        self.measure_indent(line)
         match = re.match(CODE_BLOCK_PATTERN, line)
         # already checked in can_parse
         assert match
@@ -753,6 +777,8 @@ def rst_to_markdown(text: str, extract_signature: bool = True) -> str:
     most_recent_section: Union[str, None] = None
     is_first_line = True
 
+    text = dedent(text)
+
     def flush_buffer():
         nonlocal lines_buffer
         lines = '\n'.join(lines_buffer)
@@ -766,7 +792,8 @@ def rst_to_markdown(text: str, extract_signature: bool = True) -> str:
         lines_buffer = []
         return lines
 
-    for line in text.split('\n'):
+    lines = text.split('\n')
+    for i, line in enumerate(lines):
         if is_first_line:
             if extract_signature:
                 signature_match = re.match(r'^(?P<name>\S+)\((?P<params>.*)\)$', line)
@@ -809,7 +836,9 @@ def rst_to_markdown(text: str, extract_signature: bool = True) -> str:
             else:
                 if most_recent_section in SECTION_DIRECTIVES:
                     for section_directive in SECTION_DIRECTIVES[most_recent_section]:
-                        if re.match(section_directive.pattern, trimmed_line):
+                        next_line = lines[i + 1] if i + 1 < len(lines) else ""
+                        is_next_line_section = set(next_line.strip()) == {"-"}
+                        if re.match(section_directive.pattern, line) and not is_next_line_section:
                             line = re.sub(section_directive.pattern, section_directive.replacement, trimmed_line)
                             break
                 if trimmed_line.rstrip() in RST_SECTIONS:
